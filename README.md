@@ -1,2 +1,2 @@
 # Image-Augmentation-Library
-C++ Final Project
+Library Design using C++ Final Project
