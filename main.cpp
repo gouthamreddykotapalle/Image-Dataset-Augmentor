@@ -54,7 +54,7 @@ int main( int argc, char* argv[] )
         std::cout << "\nImage px sz : " << img.getPixelSize();
         std::cout << std::endl;
 
-        std::cout << "saving a new image, let's see the difference";
+        std::cout << "saving a new image, let's see the difference:\n";
         img.save("/Users/gouthamreddykotapalle/Desktop/sports_converted.jpg");
         return 0;
     }
