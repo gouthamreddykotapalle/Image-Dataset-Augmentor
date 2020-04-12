@@ -7,7 +7,7 @@ Using the library - https://github.com/md81544/libjpeg_cpp/ (https://www.martynd
 
 
 <br>
-This is a wrapper around the standard libjpeg
+This is a wrapper around the standard libjpeg/jpeglib.h written in STL around the jpeglib.h data structures that use c-style representations.
 
 <br>
 
