@@ -1,6 +1,8 @@
 # Image-Augmentation-Library
 Library Design using C++ Final Project
 
+Using jpeglib.h which is a commonly used jpeg library/package - http://libjpeg.sourceforge.net/
+
 Using the library - https://github.com/md81544/libjpeg_cpp/ (https://www.martyndavis.com/?tag=libjpeg)
 
 
