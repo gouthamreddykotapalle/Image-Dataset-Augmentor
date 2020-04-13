@@ -51,9 +51,6 @@ namespace marengo
             // Quality's usable values are 0-100
             void save( const std::string& fileName, int quality = 95 ) const;
 
-            // Mainly for testing, writes an uncompressed PPM file
-            void savePpm( const std::string& fileName ) const;
-
             size_t getHeight()    const { return m_height; }
             size_t getWidth()     const { return m_width;  }
             size_t getPixelSize() const { return m_pixelSize; }
