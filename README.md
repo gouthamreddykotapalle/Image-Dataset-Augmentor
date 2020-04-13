@@ -13,7 +13,7 @@ This is a wrapper around the standard libjpeg/jpeglib.h written in STL around th
 
 We will be using this Wrapper instead of the standard classes that Jpeglib.h offers since it is way more simpler and writing our own wrapper might be tedious.
 
-Before starting, please install libjpeg using - 
+Before starting, please install libjpeg using (Comes in-built if you are using Unix-like distributions) - 
 <br>
 brew install libjpeg or brew install libjpeg-dev
 
