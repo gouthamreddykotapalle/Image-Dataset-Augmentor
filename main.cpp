@@ -1,67 +1,27 @@
-#include "jpeg.h"
-
 #include <iostream>
 
-void display( uint8_t luma )
-{
-    static std::vector<char> ascii{
-        ' ', '.', ',', ':', '-', '=', '+', '*', '#', '%', '@'
-        };
+#include "Augmentor.h"
 
-    int val = luma / 24;
-    std::cout << ascii[val] << ascii[val];
-}
+using namespace std;
+using namespace augmentorLib;
 
 int main( int argc, char* argv[] )
 {
-
-    if ( argc < 2 )
-    {
+    if ( argc < 2 ) {
         std::cout << "No jpeg file specified\n";
         return 1;
     }
-    try
-    {
-        using namespace marengo::jpeg;
-        // Constructor expects a filename to load:
-        Image imgOriginal( argv[1] );
+    try {
+        Augmentor img(argv[1]);
 
-        // Copy construct a second version so we can
-        // shrink non-destructively. Not really necessary
-        // here, but just to show it can be done :)
-        Image img = imgOriginal;
-
-        // Shrink proportionally to a specific width (in px)
-        img.resize( 800, 800 );
-
-        // Display the image in ASCII, just for fun.
-        std::size_t height = img.getHeight();
-        std::size_t width  = img.getWidth();
-        for ( std::size_t y = 0; y < height; ++y )
-        {
-            for ( std::size_t x = 0; x < width; ++x )
-            {
-                uint8_t luma = img.getLuminance( x, y );
-                display( luma );
-            }
-            std::cout << "\n";
-        }
-
-        std::cout << "\nImage height: " << img.getHeight();
-        std::cout << "\nImage width : " << img.getWidth();
-        // Pixel "Size" is 3 bytes for colour images (i.e. R,G, & B)
-        // and 1 byte for monochrome.
-        std::cout << "\nImage px sz : " << img.getPixelSize();
-        std::cout << std::endl;
-
-        std::cout << "saving a new image, let's see the difference:\n";
-        img.save("/Users/shubhamsinha/Desktop/Columbia/Design/out.jpg");
+        //Resize example
+        img.resize(400, 400).save("/Users/shubhamsinha/Desktop/Columbia/Design/output_resized.jpg");
+        //Invert color example
+        img.invert().save("/Users/shubhamsinha/Desktop/Columbia/Design/output.jpg");
         return 0;
     }
-    catch( const std::exception& e )
-    {
-        std::cout << "Main() error handler: ";
-        std::cout << e.what() << std::endl;
+    catch( const std::exception& e ) {
+        std::cout << "Error: " << e.what() << std::endl;
         return 1;
     }
 }
