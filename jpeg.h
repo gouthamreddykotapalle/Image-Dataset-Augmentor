@@ -39,15 +39,12 @@ public:
     // Quality's usable values are 0-100
     void save( const std::string& fileName, int quality = 95 ) const;
 
-    // Mainly for testing, writes an uncompressed PPM file
-    void savePpm( const std::string& fileName ) const;
-
     size_t getHeight()    const { return m_height; }
     size_t getWidth()     const { return m_width;  }
     size_t getPixelSize() const { return m_pixelSize; }
 
-    // Will return a vector of pixel components. The vector's
-    // size will be 1 for monochrome or 3 for RGB.
+    // Will return a vector of pixel components. The vector's 
+    // size will be 1 for monochrome or 3 for RGB. 
     // Elements for the latter will be in order R, G, B.
     std::vector<uint8_t> getPixel( size_t x, size_t y ) const;
 
@@ -55,26 +52,8 @@ public:
     // For monochrome, will just return the pixel's value directly.
     uint8_t getLuminance( size_t x, size_t y ) const;
 
-    // Get average of a box of pixels, returns a vector<uint8_t> of
-    // size 1 for monochrome or three for RGB.
-    // Note x & y specify the top left pixel of the box.
-    // If the box runs off the end of the row or column then it is
-    // shifted left/up to fit which means averages may be a little
-    // odd near the right edge / bottom :)
-    std::vector<uint8_t> getAverage( size_t x, size_t y, size_t boxSize ) const;
-
-    // Shrink (resize smaller, retaining proportion). Does nothing
-    // if the specified new width is larger than the existing width.
-    // Simply averages pixels' values.
-    void shrink( size_t newWidth );
-
-    // Expand (resize larger). Simply pads out pixels.
-    // Does nothing if the specified new width is less than, or
-    // equal to the existing width.
-    void expand( size_t newWidth );
-
-    // Convenience function which either calls shrink or expand
-    void resize( size_t newWidth );
+    // Convenience function with new height and width
+    void resize( size_t newHeight, size_t newWidth );
 
 private:
     // Note that m_errorMgr is a shared ptr and will be shared

@@ -23,7 +23,7 @@ SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS
 
 set(SOURCE_FILES main.cpp jpeg.h jpeg.cpp)
 
-add_executable(goutham ${SOURCE_FILES})
+add_executable(output ${SOURCE_FILES})
 
 
 

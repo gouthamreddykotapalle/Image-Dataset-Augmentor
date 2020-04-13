@@ -32,7 +32,7 @@ int main( int argc, char* argv[] )
         Image img = imgOriginal;
 
         // Shrink proportionally to a specific width (in px)
-        img.expand( 1500 );
+        img.resize( 800, 800 );
 
         // Display the image in ASCII, just for fun.
         std::size_t height = img.getHeight();
@@ -55,7 +55,7 @@ int main( int argc, char* argv[] )
         std::cout << std::endl;
 
         std::cout << "saving a new image, let's see the difference:\n";
-        img.save("/Users/gouthamreddykotapalle/Desktop/sports_converted.jpg");
+        img.save("/Users/shubhamsinha/Desktop/Columbia/Design/out.jpg");
         return 0;
     }
     catch( const std::exception& e )
