@@ -12,7 +12,7 @@ namespace augmentorLib {
 
     class Augmentor {
         // Provided by the jpeg.h file. Representation of an decompressed image file.
-        Image output;
+        Image img;
 
     public:
         // Default Constructor.
