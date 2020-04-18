@@ -22,12 +22,14 @@ int main( int argc, char* argv[] )
         return 1;
     }
     try {
-        Augmentor img(argv[1]);
+        Augmentor augmentor(argv[1]);
 
         //Resize example
-        img.resize(400, 400).save("/Users/shubhamsinha/Desktop/Columbia/Design/output_resized.jpg");
+        augmentor.resize(400, 400).save("./output_resized.jpg");
+        augmentor.run();
         //Invert color example
-        img.invert().save("/Users/shubhamsinha/Desktop/Columbia/Design/output.jpg");
+        augmentor.invert(0.1).save("./output.jpg");
+        augmentor.run();
         return 0;
     }
     catch( const std::exception& e ) {

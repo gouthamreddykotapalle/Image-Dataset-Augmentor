@@ -61,20 +61,20 @@ namespace augmentorLib {
 
         Operation(): Operation{UPPER_BOUND_PROB} {};
 
-        ~Operation() = default;
+        virtual ~Operation() = default;
 
         explicit Operation(double prob, unsigned seed = NULL_SEED): probability{prob}, generator{seed} {}
 
         template <typename Container>
         Container&& perform(Container&&);
 
-        // use pointer here, because we can use nullptr to indicate the operation did not occur.
+        // use pointer here, because we can use nullptr to indicate the Operation did not occur.
         virtual Image* perform(Image* image) = 0;
     };
 
 
     template<typename Image>
-    class StdoutOperation: Operation<Image> {
+    class StdoutOperation: public Operation<Image> {
     private:
         std::string str;
     public:
@@ -87,7 +87,52 @@ namespace augmentorLib {
 
     };
 
+    template<typename Image>
+    class ResizeOperation: public Operation<Image> {
+    private:
+        int height;
+        int width;
 
+    public:
+        ResizeOperation() = delete;
+
+        explicit ResizeOperation(int height, int width, double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
+                Operation<Image>{prob, seed}, height{height}, width{width} {};
+
+        Image * perform(Image* image) override;
+
+    };
+
+    template<typename Image>
+    class SaveOperation: public Operation<Image> {
+    private:
+        std::string fileName;
+        int quality;
+
+    public:
+        SaveOperation() = delete;
+
+        explicit SaveOperation(std::string  fileName, int quality,
+                double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
+                Operation<Image>{prob, seed}, fileName{std::move(fileName)}, quality{quality} {}
+
+        Image * perform(Image* image) override;
+
+    };
+
+    template<typename Image>
+    class InvertOperation: public Operation<Image> {
+    private:
+    public:
+        explicit InvertOperation(double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
+                Operation<Image>{prob, seed} {}
+
+        Image * perform(Image* image) override;
+
+    };
+
+
+    // Below is the implementation
     template<typename Image>
     template<typename Container>
     Container&& Operation<Image>::perform(Container&& container) {
@@ -107,9 +152,45 @@ namespace augmentorLib {
         std::cout << "(Image*) Stdout Operation is called:" << std::endl << str << std::endl;
         return image;
     }
+
+
+    template<typename Image>
+    Image *ResizeOperation<Image>::perform(Image *image) {
+        if (!Operation<Image>::operate_this_time()) {
+            return nullptr;
+        }
+        image->resize(height, width);
+        return image;
+    }
+
+    template<typename Image>
+    Image *SaveOperation<Image>::perform(Image *image) {
+        if (!Operation<Image>::operate_this_time()) {
+            return nullptr;
+        }
+        image->save(fileName, quality);
+        return image;
+    }
+
+    template<typename Image>
+    Image *InvertOperation<Image>::perform(Image *image) {
+        if (!Operation<Image>::operate_this_time()) {
+            return nullptr;
+        }
+        // Invert image
+        for(size_t y = 0; y < image->getHeight(); y++) {
+            for(size_t x = 0; x < image->getWidth(); x++) {
+                std::vector<uint8_t> pixels = image->getPixel(x, y);
+
+                for(uint8_t &p: pixels){
+                    p = ~p;
+                }
+                image->setPixel(x,y,pixels);
+            }
+        }
+        return image;
+    }
 }
-
-
 
 #endif //LIB_OPERATION_H
 

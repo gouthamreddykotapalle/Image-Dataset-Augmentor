@@ -5,34 +5,33 @@ namespace augmentorLib {
         this->img = Image(filename);
     }
 
-    Augmentor& Augmentor::save(const std::string& fileName, int quality) {
-        img.save(fileName, quality);
-
+    Augmentor& Augmentor::save(const std::string& fileName, int quality, double prob) {
+        auto operation = std::make_unique<SaveOperation<Image>>(fileName, quality, prob);
+        operations.push_back(std::move(operation));
         return *this;
     }
 
 
-    Augmentor& Augmentor::resize(int newHeight, int newWidth) {
-        img.resize(newHeight, newWidth);
-
+    Augmentor& Augmentor::resize(int newHeight, int newWidth, double prob) {
+        auto operation = std::make_unique<ResizeOperation<Image>>(newHeight, newWidth, prob);
+        operations.push_back(std::move(operation));
         return *this;
     }
 
-    Augmentor& Augmentor::invert() {
-        // Invert image
-        for(size_t y = 0; y < img.getHeight(); y++) {
-            for(size_t x = 0; x < img.getWidth(); x++) {
-                std::vector<uint8_t> pixels = img.getPixel(x, y);
+    Augmentor& Augmentor::invert(double prob) {
+        auto operation = std::make_unique<InvertOperation<Image>>(prob);
+        operations.push_back(std::move(operation));
+        return *this;
+    }
 
-                for(uint8_t &p: pixels){
-                    p = ~p;
-                }
-
-                img.setPixel(x,y,pixels);
+    void Augmentor::run() {
+        auto image = &img;
+        for (auto& operation : operations) {
+            image = operation->perform(image);
+            if (image == nullptr) {
+                break;
             }
         }
-
-        return *this;
     }
 }
 
