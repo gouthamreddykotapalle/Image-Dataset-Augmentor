@@ -11,9 +11,10 @@ int main( int argc, char* argv[] )
 {
     int N = 10;
     std::cout << "Going to call the Stdout operations (50% success rate) " << N << " times\n";
-    auto ops = StdoutOperation<std::vector<int>>("hello world", 0.5);
+    auto ops = StdoutOperation<int>("hello world", 0.5);
     for (int i = 0; i < N; i++) {
-        ops.perform(nullptr);
+        int* pt = nullptr;
+        ops.perform(pt);
     }
 
     if ( argc < 2 ) {
