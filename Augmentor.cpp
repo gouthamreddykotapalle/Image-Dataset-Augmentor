@@ -97,7 +97,7 @@ namespace augmentorLib {
             std::cout<<new_img_path + "_" + std::to_string(j) + ".jpg"<<"\n";
             //TODO:: change to output dir_path
 
-            this->save( + "_" + std::to_string(j) + ".jpg", image);
+            this->save( new_img_path +  "_" + std::to_string(j) + ".jpg", image);
             j++;
         }
     }
