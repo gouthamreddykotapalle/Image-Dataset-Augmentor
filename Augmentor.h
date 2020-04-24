@@ -31,7 +31,7 @@ namespace augmentorLib {
         explicit Augmentor(const std::string& path);
 
         // Save current version of image into a file specified, with the default/specified quality (0-100)
-        Augmentor& save(const std::string& fileName, Image* image, int quality = 95, double prob=1);
+        Augmentor& save(const std::string& fileName, Image* image, int quality = 95);
 
         // Resize the image - expand or shrink based on current width
         Augmentor& resize(int newHeight, int newWidth, double prob=1);

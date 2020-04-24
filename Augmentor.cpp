@@ -10,8 +10,8 @@ namespace augmentorLib {
         this->path = path;
     }
 
-    Augmentor& Augmentor::save(const std::string& fileName, Image* image, int quality, double prob) {
-        auto operation = std::make_unique<SaveOperation<Image>>(fileName, quality, prob);
+    Augmentor& Augmentor::save(const std::string& fileName, Image* image, int quality) {
+        auto operation = std::make_unique<SaveOperation<Image>>(fileName, quality);
 //        operations.push_back(std::move(operation));
         operation->perform(image);
         return *this;
@@ -61,21 +61,20 @@ namespace augmentorLib {
         }
 
         std::cout<<"output size= "<<output_array.size()<<std::endl;
-
-        std::cout<<"sas"<<"\n";
+        for (unsigned i = 0; i < output_array.size(); i++) {
+            std::cout<<"output[" << i << "]=" << output_array[i] << std::endl;
+        }
 
         int j=0;
         for(const std::string& item:output_array) {
             Image img = Image(item);//creating a temp img object
             auto image = &img;
-            std::cout<<j<<" "<<item<<"\n";
-            std::cout<<"ops size="<<operations.size()<<std::endl;
-            for (auto &operation : operations) {//5
-                std::cout<<"inside"<<"\n";
-                image = operation->perform(image);
-                if (image == nullptr) {
+            for (auto &operation : operations) {
+                auto returned_image = operation->perform(image);
+                if (returned_image == nullptr) {
                     break;
                 }
+                image = returned_image;
             }
             std::string new_img_path = item.substr(0, item.size()-4);
             std::cout<<new_img_path + "_" + std::to_string(j) + ".jpg"<<"\n";

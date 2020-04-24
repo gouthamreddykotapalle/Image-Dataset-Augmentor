@@ -112,9 +112,7 @@ namespace augmentorLib {
     public:
         SaveOperation() = delete;
 
-        explicit SaveOperation(std::string  fileName, int quality,
-                double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
-                Operation<Image>{prob, seed}, fileName{std::move(fileName)}, quality{quality} {}
+        explicit SaveOperation(std::string  fileName, int quality): fileName{std::move(fileName)}, quality{quality} {}
 
         Image * perform(Image* image) override;
 
@@ -163,11 +161,9 @@ namespace augmentorLib {
         return image;
     }
 
+    // we don't want the save function to occur with probability.
     template<typename Image>
     Image *SaveOperation<Image>::perform(Image *image) {
-        if (!Operation<Image>::operate_this_time()) {
-            return nullptr;
-        }
         image->save(fileName, quality);
         return image;
     }
