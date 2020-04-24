@@ -7,7 +7,7 @@ typedef std::chrono::high_resolution_clock  clocking;
 namespace augmentorLib {
     Augmentor::Augmentor(const std::string& path) {
         //this->img = Image(filename);
-        this->path = path;
+        Augmentor::pipeline(path);
     }
 
    void Augmentor::save(const std::string& fileName, Image* image, int quality) {
@@ -15,6 +15,8 @@ namespace augmentorLib {
     }
 
     Augmentor& Augmentor::pipeline(const std::string& directory_path) {
+        this->dir_path = directory_path;
+
         //auto operation = std::make_unique<SaveOperation<Image>>(directory_path);
         for (const auto & entry : fs::directory_iterator(directory_path))
         {
@@ -23,7 +25,7 @@ namespace augmentorLib {
             std::size_t found = temp.find(".jpg");
             if( found!=std::string::npos) {
                 std::cout << entry.path() << std::endl;
-                this->imgs.push_back(temp);
+                this->image_paths.push_back(temp);
             }
         }
 
@@ -69,14 +71,14 @@ namespace augmentorLib {
         clocking::time_point beginning =  clocking::now();
         clocking::duration d =  clocking::now()-beginning;
 
-        std::uniform_int_distribution<int> distribution(0,imgs.size()-1);
+        std::uniform_int_distribution<int> distribution(0, image_paths.size() - 1);
         auto seed = (unsigned)d.count();
         std::default_random_engine generator(seed);
 
         for(size_t i=0;i<size;i++) {
             //auto image = &img;
             int j = distribution(generator);
-            this->output_array.push_back(imgs[j]);
+            this->output_array.push_back(image_paths[j]);
         }
 
         std::cout<<"output size= "<<output_array.size()<<std::endl;
@@ -93,7 +95,7 @@ namespace augmentorLib {
             }
             std::string new_img_path = item.substr(0, item.size()-4);
             std::cout<<new_img_path + "_" + std::to_string(j) + ".jpg"<<"\n";
-            //TODO:: change to output path
+            //TODO:: change to output dir_path
 
             this->save( + "_" + std::to_string(j) + ".jpg", image);
             j++;

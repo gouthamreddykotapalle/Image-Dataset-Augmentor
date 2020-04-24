@@ -14,14 +14,14 @@ using namespace marengo::jpeg;
 namespace augmentorLib {
 
     class Augmentor {
+        //dir dir_path
+        std::string dir_path;
         // Provided by the jpeg.h file. Representation of an decompressed image file.
-        std::vector<std::string> imgs;
+        std::vector<std::string> image_paths;
         std::vector<std::string> output_array;
         // unique points for base classes
         std::vector<std::unique_ptr< Operation<Image> >> operations;
     public:
-        //dir path
-        std::string path;
         // Default Constructor.
         Augmentor() = default;
 
