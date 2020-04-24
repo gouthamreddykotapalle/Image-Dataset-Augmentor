@@ -49,12 +49,21 @@ namespace augmentorLib {
     template<typename Image>
     class Operation {
     private:
+        typedef double _precision_type;
         double probability;
-        UniformDistributionGenerator<double> generator;
+        UniformDistributionGenerator<_precision_type> generator;
 
     protected:
         inline bool operate_this_time() {
             return generator() <= probability;
+        }
+
+        inline _precision_type uniform_random_number() {
+            return generator();
+        }
+
+        inline _precision_type uniform_random_number(const _precision_type lower, const  _precision_type upper) {
+            return (upper - lower) * generator() + lower;
         }
 
     public:
@@ -87,32 +96,22 @@ namespace augmentorLib {
 
     };
 
+    struct image_size {
+        int height;
+        int width;
+    };
+
     template<typename Image>
     class ResizeOperation: public Operation<Image> {
     private:
-        int height;
-        int width;
+        image_size lower;
+        image_size upper;
 
     public:
         ResizeOperation() = delete;
 
-        explicit ResizeOperation(int height, int width, double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
-                Operation<Image>{prob, seed}, height{height}, width{width} {};
-
-        Image * perform(Image* image) override;
-
-    };
-
-    template<typename Image>
-    class SaveOperation: public Operation<Image> {
-    private:
-        std::string fileName;
-        int quality;
-
-    public:
-        SaveOperation() = delete;
-
-        explicit SaveOperation(std::string  fileName, int quality): fileName{std::move(fileName)}, quality{quality} {}
+        explicit ResizeOperation(image_size lower, image_size upper, double prob = UPPER_BOUND_PROB,
+                unsigned seed = NULL_SEED): Operation<Image>{prob, seed}, lower{lower}, upper{upper} {};
 
         Image * perform(Image* image) override;
 
@@ -155,23 +154,21 @@ namespace augmentorLib {
     template<typename Image>
     Image *ResizeOperation<Image>::perform(Image *image) {
         if (!Operation<Image>::operate_this_time()) {
-            return nullptr;
+            return image;
         }
+        auto factor = Operation<Image>::uniform_random_number();
+        int height = (upper.height - lower.height) * factor + lower.height;
+        int width = (upper.width - lower.width) * factor + lower.width;
+
         image->resize(height, width);
         return image;
     }
 
-    // we don't want the save function to occur with probability.
-    template<typename Image>
-    Image *SaveOperation<Image>::perform(Image *image) {
-        image->save(fileName, quality);
-        return image;
-    }
 
     template<typename Image>
     Image *InvertOperation<Image>::perform(Image *image) {
         if (!Operation<Image>::operate_this_time()) {
-            return nullptr;
+            return image;
         }
         // Invert image
         for(size_t y = 0; y < image->getHeight(); y++) {

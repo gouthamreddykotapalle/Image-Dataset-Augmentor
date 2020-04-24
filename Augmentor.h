@@ -31,10 +31,16 @@ namespace augmentorLib {
         explicit Augmentor(const std::string& path);
 
         // Save current version of image into a file specified, with the default/specified quality (0-100)
-        Augmentor& save(const std::string& fileName, Image* image, int quality = 95);
+        static void save(const std::string& fileName, Image* image, int quality = 95);
 
         // Resize the image - expand or shrink based on current width
-        Augmentor& resize(int newHeight, int newWidth, double prob=1);
+        Augmentor& resize(image_size lower, image_size upper, double prob=1);
+
+        Augmentor& resize(image_size new_size, double prob=1);
+
+        Augmentor& resize(int lower_height, int lower_width, int upper_height, int upper_width, double prob=1);
+
+        Augmentor& resize(int height, int width, double prob=1);
 
         // Inverts the colors in the image
         Augmentor& invert(double prob=1);

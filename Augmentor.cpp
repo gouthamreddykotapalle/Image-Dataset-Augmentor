@@ -10,11 +10,8 @@ namespace augmentorLib {
         this->path = path;
     }
 
-    Augmentor& Augmentor::save(const std::string& fileName, Image* image, int quality) {
-        auto operation = std::make_unique<SaveOperation<Image>>(fileName, quality);
-//        operations.push_back(std::move(operation));
-        operation->perform(image);
-        return *this;
+   void Augmentor::save(const std::string& fileName, Image* image, int quality) {
+        image->save(fileName, quality);
     }
 
     Augmentor& Augmentor::pipeline(const std::string& directory_path) {
@@ -34,10 +31,32 @@ namespace augmentorLib {
     }
 
 
-    Augmentor& Augmentor::resize(int newHeight, int newWidth, double prob) {
-        auto operation = std::make_unique<ResizeOperation<Image>>(newHeight, newWidth, prob);
+    Augmentor& Augmentor::resize(image_size lower, image_size upper, double prob) {
+        auto operation = std::make_unique<ResizeOperation<Image>>(lower, upper, prob);
         operations.push_back(std::move(operation));
         return *this;
+    }
+
+    Augmentor &Augmentor::resize(image_size new_size, double prob) {
+        auto operation = std::make_unique<ResizeOperation<Image>>(new_size, new_size, prob);
+        operations.push_back(std::move(operation));
+        return *this;;
+    }
+
+    Augmentor &Augmentor::resize(int lower_height, int lower_width, int upper_height, int upper_width, double prob) {
+        auto operation = std::make_unique<ResizeOperation<Image>>(
+                image_size{lower_height, lower_width}, image_size{upper_height, upper_width}, prob
+                );
+        operations.push_back(std::move(operation));
+        return *this;;
+    }
+
+    Augmentor &Augmentor::resize(int height, int width, double prob) {
+        auto operation = std::make_unique<ResizeOperation<Image>>(
+                image_size{height, width}, image_size{height, width}, prob
+                );
+        operations.push_back(std::move(operation));
+        return *this;;
     }
 
     Augmentor& Augmentor::invert(double prob) {
@@ -70,17 +89,13 @@ namespace augmentorLib {
             Image img = Image(item);//creating a temp img object
             auto image = &img;
             for (auto &operation : operations) {
-                auto returned_image = operation->perform(image);
-                if (returned_image == nullptr) {
-                    break;
-                }
-                image = returned_image;
+                image = operation->perform(image);
             }
             std::string new_img_path = item.substr(0, item.size()-4);
             std::cout<<new_img_path + "_" + std::to_string(j) + ".jpg"<<"\n";
             //TODO:: change to output path
 
-            this->save(new_img_path + "_" + std::to_string(j) + ".jpg", image);
+            this->save( + "_" + std::to_string(j) + ".jpg", image);
             j++;
         }
     }
