@@ -54,6 +54,7 @@ namespace marengo
             size_t getHeight()    const { return m_height; }
             size_t getWidth()     const { return m_width;  }
             size_t getPixelSize() const { return m_pixelSize; }
+            int getColorSpace() const { return m_colourSpace; }
 
             // Will return a vector of pixel components. The vector's
             // size will be 1 for monochrome or 3 for RGB.

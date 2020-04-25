@@ -17,6 +17,13 @@ int main( int argc, char* argv[] )
         ops.perform(pt);
     }
 
+//    auto filter = gaussian_blur_filter_1D<5>(1);
+//    for (int i = 0; i < 5; i++) {
+//        std::cout << filter[i] << " ";
+//    }
+//    std::cout << std::endl;
+//    return 0;
+
     if ( argc < 2 ) {
         std::cout << "No directory path specified\n";
         return 1;
@@ -25,8 +32,13 @@ int main( int argc, char* argv[] )
         Augmentor augmentor(argv[1]);
 
         //Resize example and Invert color example
-        augmentor.resize(400, 400, 600, 600).invert(0.1);
-        augmentor.sample(3);
+        augmentor.resize(400, 400, 600, 600).invert(0.1)
+        .blur<11>(50);
+        augmentor.sample(1);
+//        augmentor.blur<11>(50);
+//        augmentor.sample(1);
+//        augmentor.blur(50, 11ul);
+//        augmentor.sample(1);
         return 0;
     }
     catch( const std::exception& e ) {

@@ -9,6 +9,9 @@
 #include <chrono>
 #include <utility>
 #include <iostream>
+#include "gaussian_filter.h"
+#include <algorithm>
+#include <vector>
 
 
 namespace augmentorLib {
@@ -119,10 +122,25 @@ namespace augmentorLib {
 
     template<typename Image>
     class InvertOperation: public Operation<Image> {
-    private:
     public:
         explicit InvertOperation(double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
                 Operation<Image>{prob, seed} {}
+
+        Image * perform(Image* image) override;
+
+    };
+
+    template<typename Image, int Kernel = 0>
+    class BlurOperation: public Operation<Image> {
+    private:
+        gaussian_blur_filter_1D<Kernel> filter;
+    public:
+        explicit BlurOperation(const double sigma, const size_t n,
+                double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED): Operation<Image>{prob, seed},
+                filter(sigma, n) {}
+
+        explicit BlurOperation(const double sigma, double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
+            Operation<Image>{prob, seed}, filter(sigma) {}
 
         Image * perform(Image* image) override;
 
@@ -181,6 +199,61 @@ namespace augmentorLib {
                 image->setPixel(x,y,pixels);
             }
         }
+        return image;
+    }
+
+
+    inline void convert2pixel(const std::vector<double>& src, std::vector<uint8_t>& target, size_t n) {
+        for (size_t i = 0; i < n; ++i) {
+            target[i] = src[i];
+        }
+    }
+
+    template<typename Image, int Kernel>
+    Image *BlurOperation<Image, Kernel>::perform(Image *image) {
+        auto kernel_size = filter.size();
+        auto transient = Image(image->getWidth(), image->getHeight(), image->getPixelSize(), image->getColorSpace());
+        auto pixel_size = image->getPixelSize();
+        auto val = std::vector<double>(pixel_size);
+        auto new_pixel = std::vector<uint8_t>(pixel_size);
+
+        // convolute at height axis
+        for (size_t i = 0; i< image->getWidth(); ++i) {
+            for (size_t j = 0; j < image->getHeight(); ++j) {
+                std::fill(val.begin(), val.end(), 0);
+                long x0 = i - (kernel_size / 2);
+
+                for (size_t k = 0; k < kernel_size; ++k) {
+                    size_t x = std::min((size_t) std::max(x0++, 0l), image->getWidth() - 1);
+//                    std::cout << i << " " << kernel_size << " " << x0 << " " <<  x << " " << j << " " << image->getWidth() << std::endl;
+                    auto pixel = image->getPixel(x, j);
+                    for (size_t p = 0; p < pixel_size; ++p) {
+                        val[p] += pixel[p] * filter[k];
+                    }
+                }
+                convert2pixel(val, new_pixel, pixel_size);
+                transient.setPixel(i, j, new_pixel);
+            }
+        }
+
+        // convolute at width axis
+        for (size_t i = 0; i< image->getWidth(); ++i) {
+            for (size_t j = 0; j < image->getHeight(); ++j) {
+                std::fill(val.begin(), val.end(), 0);
+                long y0 = j - (kernel_size / 2);
+
+                for (size_t k = 0; k < kernel_size; ++k) {
+                    size_t y = std::min((size_t) std::max(y0++, 0l), image->getHeight() - 1);
+                    auto pixel = image->getPixel(i, y);
+                    for (size_t p = 0; p < pixel_size; ++p) {
+                        val[p] += pixel[p] * filter[k];
+                    }
+                }
+                convert2pixel(val, new_pixel, pixel_size);
+                image->setPixel(i, j, new_pixel);
+            }
+        }
+
         return image;
     }
 }

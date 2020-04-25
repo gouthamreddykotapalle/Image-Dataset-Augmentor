@@ -101,5 +101,11 @@ namespace augmentorLib {
             j++;
         }
     }
+
+    Augmentor &Augmentor::blur(double sigma, size_t kernel_size, double prob) {
+        auto operation = std::make_unique<BlurOperation<Image>>(sigma, kernel_size, prob);
+        operations.push_back(std::move(operation));
+        return *this;
+    }
 }
 

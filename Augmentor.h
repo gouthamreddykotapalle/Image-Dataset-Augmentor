@@ -45,6 +45,15 @@ namespace augmentorLib {
         // Inverts the colors in the image
         Augmentor& invert(double prob=1);
 
+        template<int K=5>
+        Augmentor& blur(double sigma, double prob=1) {
+            auto operation = std::make_unique<BlurOperation<Image, K>>(sigma, prob);
+            operations.push_back(std::move(operation));
+            return *this;
+        }
+
+        Augmentor& blur(double sigma, size_t kernel_size, double prob=1);
+
         Augmentor& pipeline(const std::string& directory_path);
 
         void sample(size_t size);
