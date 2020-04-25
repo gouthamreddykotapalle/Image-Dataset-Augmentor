@@ -24,9 +24,8 @@ int main( int argc, char* argv[] )
     try {
         Augmentor augmentor(argv[1]);
 
-        augmentor.pipeline(augmentor.path);
         //Resize example and Invert color example
-        augmentor.resize(400, 400).invert(0.1);
+        augmentor.resize(400, 400, 600, 600).invert(0.1);
         augmentor.sample(3);
         return 0;
     }
