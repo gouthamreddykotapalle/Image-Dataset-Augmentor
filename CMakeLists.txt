@@ -21,7 +21,7 @@ SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
 SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
 
-set(SOURCE_FILES main.cpp Augmentor.cpp Augmentor.h jpeg.h jpeg.cpp Operation.cpp Operation.h)
+set(SOURCE_FILES main.cpp Augmentor.cpp Augmentor.h jpeg.h jpeg.cpp Operation.cpp Operation.h gaussian_filter.h)
 
 add_executable(output ${SOURCE_FILES})
 
