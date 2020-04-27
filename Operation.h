@@ -302,19 +302,12 @@ namespace augmentorLib {
         double zoom_level = Operation<Image>::uniform_random_number(factor.min_factor, factor.max_factor);
         zoom_level = static_cast<float>(static_cast<int>(zoom_level * 10.)) / 10.;
 
-        std::cout<<zoom_level<<std::endl;
-
         int w = image->getWidth();
         int h = image->getHeight();
 
         //TODO: int double issue
         int w_zoomed = w*zoom_level;
         int h_zoomed = h*zoom_level;
-
-//        std::cout<<w<<std::endl;
-//        std::cout<<h<<std::endl;
-//        std::cout<<w_zoomed<<std::endl;
-//        std::cout<<h_zoomed<<std::endl;
 
         image->resize(h_zoomed, w_zoomed);
 
@@ -333,10 +326,37 @@ namespace augmentorLib {
             return image;
         }
 
-//        double rotate_degree = Operation<Image>::uniform_random_number(range.min_factor, range.max_factor);
+        double rotate_degree = Operation<Image>::uniform_random_number(range.min_rotate, range.max_rotate);
+
+        int w = image->getWidth();
+        int h = image->getHeight();
+        Image temp(w, h);
+
+        int hwidth = w / 2;
+        int hheight = h / 2;
+        double angle = rotate_degree * 3.14156 / 180.0; //TODO: Add PI Value
+
+        for (int x = 0; x < w;x++) {
+
+            for (int y = 0; y < h;y++) {
 
 
+                int xt = x - hwidth;
+                int yt = y - hheight;
 
+
+                int xs = (int)round((cos(angle) * xt - sin(angle) * yt) + hwidth);
+                int ys = (int)round((sin(angle) * xt + cos(angle) * yt) + hheight);
+
+
+                if (xs >= 0 && xs < w && ys >= 0 && ys < h){
+                    temp.setPixel(x, y, image->getPixel(xs, ys));
+                }
+
+            }
+        }
+
+        *image = temp;
         return image;
     }
 

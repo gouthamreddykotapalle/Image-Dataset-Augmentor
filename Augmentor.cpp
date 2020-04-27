@@ -65,7 +65,6 @@ namespace augmentorLib {
         auto operation = std::make_unique<CropOperation<Image>>(
                 image_size{height, width}, center, prob
         );
-        std::cout<<"sdfsf";
         operations.push_back(std::move(operation));
         return *this;;
     }

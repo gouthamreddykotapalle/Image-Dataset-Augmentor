@@ -39,8 +39,9 @@ int main( int argc, char* argv[] )
 //        augmentor.sample(1);
 //        augmentor.blur(50, 11ul);
 //        augmentor.sample(1);
-        augmentor.crop(300, 300, true);
+//        augmentor.crop(300, 300, true);
 //        augmentor.zoom(1.2, 1.4);
+        augmentor.rotate(60, 60);
         augmentor.sample(1);
         return 0;
     }
