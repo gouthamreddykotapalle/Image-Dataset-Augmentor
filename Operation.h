@@ -120,7 +120,6 @@ namespace augmentorLib {
 
     };
 
-
     template<typename Image>
     class CropOperation: public Operation<Image> {
     private:
@@ -136,6 +135,28 @@ namespace augmentorLib {
         Image * perform(Image* image) override;
 
     };
+
+    struct zoom_factor {
+        double min_factor;
+        double max_factor;
+    };
+
+    template<typename Image>
+    class ZoomOperation: public Operation<Image> {
+    private:
+        zoom_factor factor;
+//        bool center; //True - use fixed center. False - use random center
+
+    public:
+        ZoomOperation() = delete;
+
+        explicit ZoomOperation(zoom_factor factor,  double prob = UPPER_BOUND_PROB,
+                               unsigned seed = NULL_SEED): Operation<Image>{prob, seed}, factor{factor} {};
+
+        Image * perform(Image* image) override;
+
+    };
+
 
     template<typename Image>
     class InvertOperation: public Operation<Image> {
@@ -200,7 +221,7 @@ namespace augmentorLib {
     }
 
     template<typename Image>
-    Image *CropOperation<Image>::perform(Image *image) {std::cout<<"ssds";
+    Image *CropOperation<Image>::perform(Image *image) {;
         if (!Operation<Image>::operate_this_time()) {
             return image;
         }
@@ -209,36 +230,31 @@ namespace augmentorLib {
         int h = image->getHeight();
 
 
-
-//        if (self.width > w or self.height > h:
-//        return image
         Image temp(size.width, size.height);
         if (center){
             auto x = w/2;
             auto y = h/2;
 
-            std::cout<< x << " " << y;
 
             int left_offset = x - size.width/2;
             int down_offset = y - size.height/2;
 
-            std::cout<<left_offset<<" "<< down_offset;
+//            if (left_offset < 0 || left_offset >= w) {
+//                throw std::out_of_range("xOffset is out of range");
+//            }
+//            if (down_offset < 0 || down_offset >= h){
+//                throw std::out_of_range("yOffset is out of range");
+//            }
+//            if (size.width < 0 || (size.width + left_offset) >= w) {
+//                throw std::out_of_range("widthCrop is out of range");
+//            }
+//            if (size.height < 0 || (size.height + down_offset) >= h) {
+//                throw std::out_of_range("heightCrop is out of range");
+//            }
+//            std::cout<<temp->getWidth()<<" "<<temp->getHeight()<<std::endl;
 
-            if (left_offset < 0 || left_offset >= w) {
-                throw std::out_of_range("xOffset is out of range");
-            }
-            if (down_offset < 0 || down_offset >= h){
-                throw std::out_of_range("yOffset is out of range");
-            }
-            if (size.width < 0 || (size.width + left_offset) >= w) {
-                throw std::out_of_range("widthCrop is out of range");
-            }
-            if (size.height < 0 || (size.height + down_offset) >= h) {
-                throw std::out_of_range("heightCrop is out of range");
-            }
-
-            for(int i=down_offset, i1=0; i<down_offset+size.height; i++, i1++){
-                for(int j=left_offset, j1=0; j<left_offset+size.width; j++, j1++){
+            for(int i=left_offset, i1=0; i<left_offset+size.width; i++, i1++){
+                for(int j=down_offset, j1=0; j<down_offset+size.height; j++, j1++){
                     temp.setPixel(i1, j1, image->getPixel(i,j));
                 }
             }
@@ -246,6 +262,7 @@ namespace augmentorLib {
             //return image;
             }
         else{
+// TODO: For random centers
 //            auto left_shift = Operation<Image>::uniform_random_number(0, w - size.width);
 //            auto down_shift = Operation<Image>::uniform_random_number(0, h - size.height);
         }
@@ -253,6 +270,40 @@ namespace augmentorLib {
 
 //        image->crop(left_shift, down_shift, center);
         *image = temp;
+        return image;
+    }
+
+    template<typename Image>
+    Image *ZoomOperation<Image>::perform(Image *image) {std::cout<<"ssds";
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
+
+        double zoom_level = Operation<Image>::uniform_random_number(factor.min_factor, factor.max_factor);
+        zoom_level = static_cast<float>(static_cast<int>(zoom_level * 10.)) / 10.;
+
+        std::cout<<zoom_level<<std::endl;
+
+        int w = image->getWidth();
+        int h = image->getHeight();
+
+        //TODO: int double issue
+        int w_zoomed = w*zoom_level;
+        int h_zoomed = h*zoom_level;
+
+//        std::cout<<w<<std::endl;
+//        std::cout<<h<<std::endl;
+//        std::cout<<w_zoomed<<std::endl;
+//        std::cout<<h_zoomed<<std::endl;
+
+        image->resize(h_zoomed, w_zoomed);
+
+        auto operation = std::make_unique<CropOperation<Image>>(
+                image_size{h, w}, true, 1
+        );
+
+        image = operation->perform(image);
+
         return image;
     }
 

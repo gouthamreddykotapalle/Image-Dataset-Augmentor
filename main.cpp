@@ -39,8 +39,9 @@ int main( int argc, char* argv[] )
 //        augmentor.sample(1);
 //        augmentor.blur(50, 11ul);
 //        augmentor.sample(1);
-        augmentor.crop(250, 250, true);
-        augmentor.sample(5);
+        augmentor.crop(300, 300, true);
+//        augmentor.zoom(1.2, 1.4);
+        augmentor.sample(1);
         return 0;
     }
     catch( const std::exception& e ) {

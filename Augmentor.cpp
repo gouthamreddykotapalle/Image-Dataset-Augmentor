@@ -70,6 +70,14 @@ namespace augmentorLib {
         return *this;;
     }
 
+    Augmentor &Augmentor::zoom(double min_factor, double max_factor, double prob) {
+        auto operation = std::make_unique<ZoomOperation<Image>>(
+                zoom_factor{min_factor, max_factor}, prob
+        );
+        operations.push_back(std::move(operation));
+        return *this;;
+    }
+
     Augmentor& Augmentor::invert(double prob) {
         auto operation = std::make_unique<InvertOperation<Image>>(prob);
         operations.push_back(std::move(operation));
