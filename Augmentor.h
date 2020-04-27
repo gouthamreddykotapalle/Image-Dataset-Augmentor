@@ -42,6 +42,8 @@ namespace augmentorLib {
 
         Augmentor& resize(int height, int width, double prob=1);
 
+        Augmentor& crop(int height, int width, bool center, double prob=1);
+
         // Inverts the colors in the image
         Augmentor& invert(double prob=1);
 

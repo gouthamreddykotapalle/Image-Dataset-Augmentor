@@ -114,7 +114,24 @@ namespace augmentorLib {
         ResizeOperation() = delete;
 
         explicit ResizeOperation(image_size lower, image_size upper, double prob = UPPER_BOUND_PROB,
-                unsigned seed = NULL_SEED): Operation<Image>{prob, seed}, lower{lower}, upper{upper} {};
+                                 unsigned seed = NULL_SEED): Operation<Image>{prob, seed}, lower{lower}, upper{upper} {};
+
+        Image * perform(Image* image) override;
+
+    };
+
+
+    template<typename Image>
+    class CropOperation: public Operation<Image> {
+    private:
+        image_size size;
+        bool center; //True - use fixed center. False - use random center
+
+    public:
+        CropOperation() = delete;
+
+        explicit CropOperation(image_size size, bool center,  double prob = UPPER_BOUND_PROB,
+                                 unsigned seed = NULL_SEED): Operation<Image>{prob, seed}, size{size}, center{center} {};
 
         Image * perform(Image* image) override;
 
@@ -182,6 +199,62 @@ namespace augmentorLib {
         return image;
     }
 
+    template<typename Image>
+    Image *CropOperation<Image>::perform(Image *image) {std::cout<<"ssds";
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
+
+        int w = image->getWidth();
+        int h = image->getHeight();
+
+
+
+//        if (self.width > w or self.height > h:
+//        return image
+        Image temp(size.width, size.height);
+        if (center){
+            auto x = w/2;
+            auto y = h/2;
+
+            std::cout<< x << " " << y;
+
+            int left_offset = x - size.width/2;
+            int down_offset = y - size.height/2;
+
+            std::cout<<left_offset<<" "<< down_offset;
+
+            if (left_offset < 0 || left_offset >= w) {
+                throw std::out_of_range("xOffset is out of range");
+            }
+            if (down_offset < 0 || down_offset >= h){
+                throw std::out_of_range("yOffset is out of range");
+            }
+            if (size.width < 0 || (size.width + left_offset) >= w) {
+                throw std::out_of_range("widthCrop is out of range");
+            }
+            if (size.height < 0 || (size.height + down_offset) >= h) {
+                throw std::out_of_range("heightCrop is out of range");
+            }
+
+            for(int i=down_offset, i1=0; i<down_offset+size.height; i++, i1++){
+                for(int j=left_offset, j1=0; j<left_offset+size.width; j++, j1++){
+                    temp.setPixel(i1, j1, image->getPixel(i,j));
+                }
+            }
+
+            //return image;
+            }
+        else{
+//            auto left_shift = Operation<Image>::uniform_random_number(0, w - size.width);
+//            auto down_shift = Operation<Image>::uniform_random_number(0, h - size.height);
+        }
+
+
+//        image->crop(left_shift, down_shift, center);
+        *image = temp;
+        return image;
+    }
 
     template<typename Image>
     Image *InvertOperation<Image>::perform(Image *image) {
