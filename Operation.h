@@ -136,6 +136,26 @@ namespace augmentorLib {
 
     };
 
+    struct rotate_range {
+        int min_rotate;
+        int max_rotate;
+    };
+
+    template<typename Image>
+    class RotateOperation: public Operation<Image> {
+    private:
+        rotate_range range;
+
+    public:
+        RotateOperation() = delete;
+
+        explicit RotateOperation(rotate_range range, double prob = UPPER_BOUND_PROB,
+                               unsigned seed = NULL_SEED): Operation<Image>{prob, seed}, range{range} {};
+
+        Image * perform(Image* image) override;
+
+    };
+
     struct zoom_factor {
         double min_factor;
         double max_factor;
@@ -303,6 +323,19 @@ namespace augmentorLib {
         );
 
         image = operation->perform(image);
+
+        return image;
+    }
+
+    template<typename Image>
+    Image *RotateOperation<Image>::perform(Image *image) {std::cout<<"ssds";
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
+
+//        double rotate_degree = Operation<Image>::uniform_random_number(range.min_factor, range.max_factor);
+
+
 
         return image;
     }

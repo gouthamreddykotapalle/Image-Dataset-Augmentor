@@ -78,6 +78,14 @@ namespace augmentorLib {
         return *this;;
     }
 
+    Augmentor &Augmentor::rotate(int min_degree, int max_degree, double prob) {
+        auto operation = std::make_unique<RotateOperation<Image>>(
+                rotate_range{min_degree, max_degree}, prob
+        );
+        operations.push_back(std::move(operation));
+        return *this;;
+    }
+
     Augmentor& Augmentor::invert(double prob) {
         auto operation = std::make_unique<InvertOperation<Image>>(prob);
         operations.push_back(std::move(operation));
