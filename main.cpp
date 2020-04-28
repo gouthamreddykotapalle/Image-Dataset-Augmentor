@@ -24,12 +24,12 @@ int main( int argc, char* argv[] )
 //    std::cout << std::endl;
 //    return 0;
 
-    if ( argc < 2 ) {
-        std::cout << "No directory path specified\n";
+    if ( argc < 3 ) {
+        std::cout << "Please specify both input and output paths\n";
         return 1;
     }
     try {
-        Augmentor augmentor(argv[1]);
+        Augmentor augmentor(argv[1],argv[2]);
 
         //Resize example and Invert color example
 //        augmentor.resize(400, 400, 600, 600).invert(0.1)
@@ -39,7 +39,7 @@ int main( int argc, char* argv[] )
 //        augmentor.sample(1);
 //        augmentor.blur(50, 11ul);
 //        augmentor.sample(1);
-        augmentor.random_erase(image_size{10, 10}, image_size{1000, 1000}).flip("Horizontal", 1);
+        augmentor.random_erase(image_size{10, 10}, image_size{100, 100}).flip("Horizontal", 1);
         augmentor.sample(1);
         return 0;
     }
