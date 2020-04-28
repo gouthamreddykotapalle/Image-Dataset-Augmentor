@@ -12,6 +12,8 @@
 #include "gaussian_filter.h"
 #include <algorithm>
 #include <vector>
+#include <limits>
+#include <type_traits>
 
 
 namespace augmentorLib {
@@ -20,9 +22,11 @@ namespace augmentorLib {
     const double UPPER_BOUND_PROB = 1.0;
     const unsigned NULL_SEED = 0;
 
+    template <typename DataType, bool IsReal = std::is_floating_point<DataType>::value>
+    class UniformDistributionGenerator;
 
     template <typename DataType>
-    class UniformDistributionGenerator {
+    class UniformDistributionGenerator<DataType, true> {
     private:
         std::default_random_engine generator;
         std::uniform_real_distribution<DataType> distribution;
@@ -42,6 +46,41 @@ namespace augmentorLib {
         explicit UniformDistributionGenerator(unsigned seed):
                 generator{init_seed(seed)},
                 distribution{LOWER_BOUND_PROB, UPPER_BOUND_PROB} {}
+
+        explicit UniformDistributionGenerator(unsigned seed, DataType lower, DataType upper):
+                generator{init_seed(seed)},
+                distribution{lower, upper} {}
+
+        inline DataType operator()() {
+            return distribution(generator);
+        }
+    };
+
+    template <typename DataType>
+    class UniformDistributionGenerator<DataType, false> {
+    private:
+        std::default_random_engine generator;
+        std::uniform_int_distribution<DataType> distribution;
+
+        static unsigned init_seed(unsigned seed) {
+            if (seed == NULL_SEED) {
+                return std::chrono::system_clock::now().time_since_epoch().count();
+            }
+            return seed;
+        }
+
+    public:
+        UniformDistributionGenerator(): UniformDistributionGenerator<DataType>(NULL_SEED) {};
+
+        ~UniformDistributionGenerator() = default;
+
+        explicit UniformDistributionGenerator(unsigned seed):
+                generator{init_seed(seed)},
+                distribution{std::numeric_limits<DataType>::min(), std::numeric_limits<DataType>::max()} {}
+
+        explicit UniformDistributionGenerator(unsigned seed, DataType lower, DataType upper):
+                generator{init_seed(seed)},
+                distribution{lower, upper} {}
 
         inline DataType operator()() {
             return distribution(generator);
@@ -71,7 +110,7 @@ namespace augmentorLib {
 
     public:
 
-        Operation(): Operation{UPPER_BOUND_PROB} {};
+        Operation(): probability{UPPER_BOUND_PROB}, generator{NULL_SEED} {};
 
         virtual ~Operation() = default;
 
@@ -100,8 +139,8 @@ namespace augmentorLib {
     };
 
     struct image_size {
-        int height;
-        int width;
+        size_t height;
+        size_t width;
     };
 
     template<typename Image>
@@ -141,6 +180,28 @@ namespace augmentorLib {
 
         explicit BlurOperation(const double sigma, double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
             Operation<Image>{prob, seed}, filter(sigma) {}
+
+        Image * perform(Image* image) override;
+
+    };
+
+    template<typename Image>
+    class RandomEraseOperation: public Operation<Image> {
+    private:
+        typedef typename Image::pixel_value_type pixel_value_type;
+        UniformDistributionGenerator<size_t> xy_generator;
+        UniformDistributionGenerator<pixel_value_type> noise_generator;
+        image_size lower_mask_size;
+        image_size upper_mask_size;
+    public:
+        explicit RandomEraseOperation(image_size lower_mask_size, image_size upper_mask_size,
+                double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED, unsigned xy_seed = NULL_SEED,
+                unsigned noise_seed = NULL_SEED):
+                Operation<Image>{prob, seed},
+                xy_generator(xy_seed),
+                noise_generator(noise_seed),
+                lower_mask_size{lower_mask_size}, upper_mask_size{upper_mask_size} {}
+
 
         Image * perform(Image* image) override;
 
@@ -211,6 +272,9 @@ namespace augmentorLib {
 
     template<typename Image, int Kernel>
     Image *BlurOperation<Image, Kernel>::perform(Image *image) {
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
         auto kernel_size = filter.size();
         auto transient = Image(image->getWidth(), image->getHeight(), image->getPixelSize(), image->getColorSpace());
         auto pixel_size = image->getPixelSize();
@@ -250,6 +314,46 @@ namespace augmentorLib {
                     }
                 }
                 convert2pixel(val, new_pixel, pixel_size);
+                image->setPixel(i, j, new_pixel);
+            }
+        }
+
+        return image;
+    }
+
+    template<typename Image>
+    Image* RandomEraseOperation<Image>::perform(Image *image) {
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
+
+        auto lower_erase_size = image_size{
+                std::min(image->getHeight(), lower_mask_size.height),
+                std::min(image->getWidth(), lower_mask_size.width),
+        };
+
+        auto upper_erase_size = image_size{
+                std::min(image->getHeight(), upper_mask_size.height),
+                std::min(image->getWidth(), upper_mask_size.width),
+        };
+
+        auto factor = RandomEraseOperation<Image>::uniform_random_number();
+        auto erase_size = image_size{
+                (size_t) ((upper_erase_size.height - lower_erase_size.height) * factor) + lower_erase_size.height,
+                (size_t) ((upper_erase_size.width - lower_erase_size.width) * factor) + lower_erase_size.width
+        };
+
+        auto top = xy_generator() % (image->getHeight() - erase_size.height + 1);
+        auto left = xy_generator() % (image->getWidth() - erase_size.width + 1);
+
+        auto pixel_size = image->getPixelSize();
+        auto new_pixel = std::vector<RandomEraseOperation::pixel_value_type>(pixel_size);
+
+        for (size_t i = left; i < left + erase_size.width; ++i) {
+            for (size_t j = top; j < top + erase_size.height; ++j) {
+                for (size_t k = 0; k < pixel_size; ++k) {
+                    new_pixel[k] = noise_generator();
+                }
                 image->setPixel(i, j, new_pixel);
             }
         }
