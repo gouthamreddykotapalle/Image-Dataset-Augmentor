@@ -45,7 +45,7 @@ namespace augmentorLib {
         return *this;;
     }
 
-    Augmentor &Augmentor::resize(int lower_height, int lower_width, int upper_height, int upper_width, double prob) {
+    Augmentor &Augmentor::resize(size_t lower_height, size_t lower_width, size_t upper_height, size_t upper_width, double prob) {
         auto operation = std::make_unique<ResizeOperation<Image>>(
                 image_size{lower_height, lower_width}, image_size{upper_height, upper_width}, prob
                 );
@@ -53,7 +53,7 @@ namespace augmentorLib {
         return *this;;
     }
 
-    Augmentor &Augmentor::resize(int height, int width, double prob) {
+    Augmentor &Augmentor::resize(size_t height, size_t width, double prob) {
         auto operation = std::make_unique<ResizeOperation<Image>>(
                 image_size{height, width}, image_size{height, width}, prob
                 );
@@ -128,6 +128,18 @@ namespace augmentorLib {
 
     Augmentor &Augmentor::blur(double sigma, size_t kernel_size, double prob) {
         auto operation = std::make_unique<BlurOperation<Image>>(sigma, kernel_size, prob);
+        operations.push_back(std::move(operation));
+        return *this;
+    }
+
+    Augmentor &Augmentor::random_erase(image_size lower_mask_size, image_size upper_mask_size, double prob) {
+        auto operation = std::make_unique<RandomEraseOperation<Image>>(lower_mask_size, upper_mask_size, prob);
+        operations.push_back(std::move(operation));
+        return *this;
+    }
+
+    Augmentor &Augmentor::random_erase(image_size mask_size, double prob) {
+        auto operation = std::make_unique<RandomEraseOperation<Image>>(mask_size, mask_size, prob);
         operations.push_back(std::move(operation));
         return *this;
     }

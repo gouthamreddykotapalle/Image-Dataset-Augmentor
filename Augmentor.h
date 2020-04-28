@@ -38,9 +38,9 @@ namespace augmentorLib {
 
         Augmentor& resize(image_size new_size, double prob=1);
 
-        Augmentor& resize(int lower_height, int lower_width, int upper_height, int upper_width, double prob=1);
+        Augmentor& resize(size_t lower_height, size_t lower_width, size_t upper_height, size_t upper_width, double prob=1);
 
-        Augmentor& resize(int height, int width, double prob=1);
+        Augmentor& resize(size_t height, size_t width, double prob=1);
 
         Augmentor& crop(int height, int width, bool center, double prob=1);
 
@@ -61,6 +61,10 @@ namespace augmentorLib {
         Augmentor& blur(double sigma, size_t kernel_size, double prob=1);
 
         Augmentor& pipeline(const std::string& directory_path);
+
+        Augmentor& random_erase(image_size lower_mask_size, image_size upper_mask_size, double prob=1);
+
+        Augmentor& random_erase(image_size mask_size, double prob=1);
 
         void sample(size_t size);
     };

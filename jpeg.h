@@ -26,6 +26,8 @@ namespace marengo
             int                               m_colourSpace;
 
         public:
+            typedef uint8_t pixel_value_type;
+
             explicit Image(
                     const size_t x,
                     const size_t y,
