@@ -317,8 +317,8 @@ namespace augmentorLib {
             auto y = h/2;
 
 
-            int left_offset = x - size.width/2;
-            int down_offset = y - size.height/2;
+            auto left_offset = x - size.width/2;
+            auto down_offset = y - size.height/2;
 
 //            if (left_offset < 0 || left_offset >= w) {
 //                throw std::out_of_range("xOffset is out of range");
@@ -334,8 +334,8 @@ namespace augmentorLib {
 //            }
 //            std::cout<<temp->getWidth()<<" "<<temp->getHeight()<<std::endl;
 
-            for(int i=left_offset, i1=0; i<left_offset+size.width; i++, i1++){
-                for(int j=down_offset, j1=0; j<down_offset+size.height; j++, j1++){
+            for(unsigned long i=left_offset, i1=0; i<left_offset+size.width; i++, i1++){
+                for(unsigned long  j=down_offset, j1=0; j<down_offset+size.height; j++, j1++){
                     temp.setPixel(i1, j1, image->getPixel(i,j));
                 }
             }
@@ -343,7 +343,7 @@ namespace augmentorLib {
             //return image;
             }
         else{
-// TODO: For random centers
+//            TODO: For random centers
 //            auto left_shift = Operation<Image>::uniform_random_number(0, w - size.width);
 //            auto down_shift = Operation<Image>::uniform_random_number(0, h - size.height);
         }
@@ -373,7 +373,7 @@ namespace augmentorLib {
         image->resize(h_zoomed, w_zoomed);
 
         auto operation = CropOperation<Image>(
-                image_size{h, w}, true, 1
+                image_size{static_cast<size_t>(h), static_cast<size_t>(w)}, true, 1
         );
 
         image = operation.perform(image);

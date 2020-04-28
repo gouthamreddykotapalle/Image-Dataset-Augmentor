@@ -63,7 +63,7 @@ namespace augmentorLib {
 
     Augmentor &Augmentor::crop(int height, int width, bool center, double prob) {
         auto operation = std::make_unique<CropOperation<Image>>(
-                image_size{height, width}, center, prob
+                image_size{static_cast<size_t>(height), static_cast<size_t>(width)}, center, prob
         );
         operations.push_back(std::move(operation));
         return *this;;
