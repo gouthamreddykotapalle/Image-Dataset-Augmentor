@@ -143,5 +143,11 @@ namespace augmentorLib {
         operations.push_back(std::move(operation));
         return *this;
     }
+
+    Augmentor &Augmentor::flip(const std::string& type, double prob) {
+        auto operation = std::make_unique<FlipOperation<Image>>(type, prob);
+        operations.push_back(std::move(operation));
+        return *this;
+    }
 }
 

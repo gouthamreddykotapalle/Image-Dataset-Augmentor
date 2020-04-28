@@ -265,6 +265,51 @@ namespace augmentorLib {
 
     };
 
+    template<typename Image>
+    class FlipOperation: public Operation<Image> {
+    private:
+        const std::string& type;
+    public:
+        explicit FlipOperation(const std::string& type,
+                               double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED): Operation<Image>{prob, seed},
+                                                                                           type(type) {}
+
+        Image * perform(Image* image) override;
+
+    };
+
+    template<typename Image>
+    Image *FlipOperation<Image>::perform(Image *image) {
+
+        if(type=="Horizontal")
+        {
+            for(size_t y = 0; y < image->getHeight(); ++y) {
+                for(size_t x = 0; x < image->getWidth()/2; ++x) {
+                    std::vector<uint8_t> left_pixels = image->getPixel(x, y);
+                    std::vector<uint8_t> right_pixels = image->getPixel(image->getWidth() - x - 1, y);
+
+                    image->setPixel(x, y, right_pixels);
+                    image->setPixel(image->getWidth()-x-1, y, left_pixels);
+                }
+            }
+        } else if(type=="Vertical"){
+            for(size_t y = 0; y < image->getHeight()/2; ++y) {
+                for(size_t x = 0; x < image->getWidth(); ++x) {
+                    std::vector<uint8_t> top_pixels = image->getPixel(x, y);
+                    std::vector<uint8_t> bottom_pixels = image->getPixel(x, image->getHeight() - y - 1);
+
+                    image->setPixel(x, y, bottom_pixels);
+                    image->setPixel(x, image->getHeight() - y - 1, top_pixels);
+                }
+            }
+        }
+        else
+        {
+            throw std::out_of_range("Unknown Flip type - Choose wither 'Horizontal' or 'Vertical'");
+        }
+        return image;
+    }
+
 
     // Below is the implementation
     template<typename Image>

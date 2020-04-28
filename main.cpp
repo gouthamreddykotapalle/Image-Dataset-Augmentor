@@ -39,7 +39,7 @@ int main( int argc, char* argv[] )
 //        augmentor.sample(1);
 //        augmentor.blur(50, 11ul);
 //        augmentor.sample(1);
-        augmentor.random_erase(image_size{10, 10}, image_size{1000, 1000}).crop(300,300, true);
+        augmentor.random_erase(image_size{10, 10}, image_size{1000, 1000}).flip("Horizontal", 1);
         augmentor.sample(1);
         return 0;
     }

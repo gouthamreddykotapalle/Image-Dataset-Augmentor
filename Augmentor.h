@@ -66,6 +66,8 @@ namespace augmentorLib {
 
         Augmentor& random_erase(image_size mask_size, double prob=1);
 
+        Augmentor& flip(const std::string& type, double prob=1);
+
         void sample(size_t size);
     };
 }
