@@ -332,7 +332,7 @@ namespace augmentorLib {
         if (!Operation<Image>::operate_this_time()) {
             return nullptr;
         }
-        std::cout << "(Image*) Stdout Operation is called:" << std::endl << str << std::endl;
+        //std::cout << "(Image*) Stdout Operation is called:" << std::endl << str << std::endl;
         return image;
     }
 
@@ -404,7 +404,7 @@ namespace augmentorLib {
     }
 
     template<typename Image>
-    Image *ZoomOperation<Image>::perform(Image *image) {std::cout<<"ssds";
+    Image *ZoomOperation<Image>::perform(Image *image) {
         if (!Operation<Image>::operate_this_time()) {
             return image;
         }
@@ -431,7 +431,7 @@ namespace augmentorLib {
     }
 
     template<typename Image>
-    Image *RotateOperation<Image>::perform(Image *image) {std::cout<<"ssds";
+    Image *RotateOperation<Image>::perform(Image *image) {
         if (!Operation<Image>::operate_this_time()) {
             return image;
         }

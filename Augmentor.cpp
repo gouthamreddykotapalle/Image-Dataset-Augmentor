@@ -117,7 +117,6 @@ namespace augmentorLib {
             for (auto &operation : operations) {
                 image = operation->perform(image);
             }
-            //std::string new_img_path = item.substr(0, item.size()-4);
             std::cout<<this->out_path + "output_" + std::to_string(j) + ".jpg"<<"\n";
             this->save(this->out_path +  "output_" + std::to_string(j) + ".jpg", image);
             j++;
