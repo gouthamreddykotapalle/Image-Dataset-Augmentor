@@ -311,11 +311,11 @@ namespace augmentorLib {
 
         image->resize(h_zoomed, w_zoomed);
 
-        auto operation = std::make_unique<CropOperation<Image>>(
+        auto operation = CropOperation<Image>(
                 image_size{h, w}, true, 1
         );
 
-        image = operation->perform(image);
+        image = operation.perform(image);
 
         return image;
     }

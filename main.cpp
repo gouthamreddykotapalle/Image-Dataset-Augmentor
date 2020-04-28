@@ -33,7 +33,7 @@ int main( int argc, char* argv[] )
 
         //performing all the operations so far
         augmentor.resize(400, 400, 600, 600).invert(0.1)
-        .blur<11>(50).crop(300,300,true).zoom(1.2,1.4).rotate(45,60).sample(3);
+        .blur<11>(50).crop(300,300,true).zoom(1.2,1.4).rotate(45,180).sample(6);
         return 0;
     }
     catch( const std::exception& e ) {
