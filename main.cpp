@@ -31,14 +31,9 @@ int main( int argc, char* argv[] )
     try {
         Augmentor augmentor(argv[1]);
 
-        //Resize example and Invert color example
+        //performing all the operations so far
         augmentor.resize(400, 400, 600, 600).invert(0.1)
-        .blur<11>(50);
-        augmentor.sample(1);
-//        augmentor.blur<11>(50);
-//        augmentor.sample(1);
-//        augmentor.blur(50, 11ul);
-//        augmentor.sample(1);
+        .blur<11>(50).crop(300,300,true).zoom(1.2,1.4).rotate(45,180).sample(6);
         return 0;
     }
     catch( const std::exception& e ) {
