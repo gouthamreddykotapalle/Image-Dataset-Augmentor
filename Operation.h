@@ -4,6 +4,7 @@
 
 #ifndef LIB_OPERATION_H
 #define LIB_OPERATION_H
+#define PI 3.14159
 
 #include <random>
 #include <chrono>
@@ -272,7 +273,7 @@ namespace augmentorLib {
     public:
         explicit FlipOperation(const std::string& type,
                                double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED): Operation<Image>{prob, seed},
-                                                                                           type(type) {}
+                                                                                           type(type) {}//super.
 
         Image * perform(Image* image) override;
 
@@ -280,6 +281,9 @@ namespace augmentorLib {
 
     template<typename Image>
     Image *FlipOperation<Image>::perform(Image *image) {
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
 
         if(type=="Horizontal")
         {
@@ -440,7 +444,7 @@ namespace augmentorLib {
 
         int hwidth = w / 2;
         int hheight = h / 2;
-        double angle = rotate_degree * 3.14156 / 180.0; //TODO: Add PI Value
+        double angle = rotate_degree * PI / 180.0; //TODO: Add PI Value
 
         for (int x = 0; x < w;x++) {
 
