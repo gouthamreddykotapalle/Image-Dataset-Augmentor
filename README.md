@@ -17,3 +17,8 @@ Before starting, please install libjpeg using (Comes in-built if you are using U
 <br>
 brew install libjpeg or brew install libjpeg-dev
 
+
+
+Yet to make the design document, API document, Final Report and presentation+tutorial
+
+Future scope, multi-threading support as well.

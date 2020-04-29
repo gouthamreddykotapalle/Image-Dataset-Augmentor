@@ -5,20 +5,20 @@ namespace fs = std::filesystem;
 typedef std::chrono::high_resolution_clock  clocking;
 
 namespace augmentorLib {
-    Augmentor::Augmentor(const std::string& path) {
+    Augmentor::Augmentor(const std::string& in_path, const std::string& out_path) {
         //this->img = Image(filename);
-        Augmentor::pipeline(path);
+        this->dir_path = in_path;
+        this->out_path = out_path;
+        Augmentor::pipeline();
     }
 
    void Augmentor::save(const std::string& fileName, Image* image, int quality) {
         image->save(fileName, quality);
     }
 
-    Augmentor& Augmentor::pipeline(const std::string& directory_path) {
-        this->dir_path = directory_path;
-
+    Augmentor& Augmentor::pipeline() {
         //auto operation = std::make_unique<SaveOperation<Image>>(directory_path);
-        for (const auto & entry : fs::directory_iterator(directory_path))
+        for (const auto & entry : fs::directory_iterator(this->dir_path))
         {
             //for each image in input dir, create an object
             std::string temp = entry.path();
@@ -61,6 +61,30 @@ namespace augmentorLib {
         return *this;;
     }
 
+    Augmentor &Augmentor::crop(int height, int width, bool center, double prob) {
+        auto operation = std::make_unique<CropOperation<Image>>(
+                image_size{static_cast<size_t>(height), static_cast<size_t>(width)}, center, prob
+        );
+        operations.push_back(std::move(operation));
+        return *this;;
+    }
+
+    Augmentor &Augmentor::zoom(double min_factor, double max_factor, double prob) {
+        auto operation = std::make_unique<ZoomOperation<Image>>(
+                zoom_factor{min_factor, max_factor}, prob
+        );
+        operations.push_back(std::move(operation));
+        return *this;;
+    }
+
+    Augmentor &Augmentor::rotate(int min_degree, int max_degree, double prob) {
+        auto operation = std::make_unique<RotateOperation<Image>>(
+                rotate_range{min_degree, max_degree}, prob
+        );
+        operations.push_back(std::move(operation));
+        return *this;;
+    }
+
     Augmentor& Augmentor::invert(double prob) {
         auto operation = std::make_unique<InvertOperation<Image>>(prob);
         operations.push_back(std::move(operation));
@@ -82,7 +106,7 @@ namespace augmentorLib {
         }
 
         std::cout<<"output size= "<<output_array.size()<<std::endl;
-        for (unsigned i = 0; i < output_array.size(); i++) {
+        for (unsigned long i = 0; i < output_array.size(); i++) {
             std::cout<<"output[" << i << "]=" << output_array[i] << std::endl;
         }
 
@@ -93,11 +117,8 @@ namespace augmentorLib {
             for (auto &operation : operations) {
                 image = operation->perform(image);
             }
-            std::string new_img_path = item.substr(0, item.size()-4);
-            std::cout<<new_img_path + "_" + std::to_string(j) + ".jpg"<<"\n";
-            //TODO:: change to output dir_path
-
-            this->save(new_img_path +  "_" + std::to_string(j) + ".jpg", image);
+            std::cout<<this->out_path + "output_" + std::to_string(j) + ".jpg"<<"\n";
+            this->save(this->out_path +  "output_" + std::to_string(j) + ".jpg", image);
             j++;
         }
     }
@@ -116,6 +137,12 @@ namespace augmentorLib {
 
     Augmentor &Augmentor::random_erase(image_size mask_size, double prob) {
         auto operation = std::make_unique<RandomEraseOperation<Image>>(mask_size, mask_size, prob);
+        operations.push_back(std::move(operation));
+        return *this;
+    }
+
+    Augmentor &Augmentor::flip(const std::string& type, double prob) {
+        auto operation = std::make_unique<FlipOperation<Image>>(type, prob);
         operations.push_back(std::move(operation));
         return *this;
     }

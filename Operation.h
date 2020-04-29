@@ -4,6 +4,7 @@
 
 #ifndef LIB_OPERATION_H
 #define LIB_OPERATION_H
+#define PI 3.14159
 
 #include <random>
 #include <chrono>
@@ -174,11 +175,69 @@ namespace augmentorLib {
         ResizeOperation() = delete;
 
         explicit ResizeOperation(image_size lower, image_size upper, double prob = UPPER_BOUND_PROB,
-                unsigned seed = NULL_SEED): Operation<Image>{prob, seed}, lower{lower}, upper{upper} {};
+                                 unsigned seed = NULL_SEED): Operation<Image>{prob, seed}, lower{lower}, upper{upper} {};
 
         Image * perform(Image* image) override;
 
     };
+
+    template<typename Image>
+    class CropOperation: public Operation<Image> {
+    private:
+        image_size size;
+        bool center; //True - use fixed center. False - use random center
+
+    public:
+        CropOperation() = delete;
+
+        explicit CropOperation(image_size size, bool center,  double prob = UPPER_BOUND_PROB,
+                                 unsigned seed = NULL_SEED): Operation<Image>{prob, seed}, size{size}, center{center} {};
+
+        Image * perform(Image* image) override;
+
+    };
+
+    struct rotate_range {
+        int min_rotate;
+        int max_rotate;
+    };
+
+    template<typename Image>
+    class RotateOperation: public Operation<Image> {
+    private:
+        rotate_range range;
+
+    public:
+        RotateOperation() = delete;
+
+        explicit RotateOperation(rotate_range range, double prob = UPPER_BOUND_PROB,
+                               unsigned seed = NULL_SEED): Operation<Image>{prob, seed}, range{range} {};
+
+        Image * perform(Image* image) override;
+
+    };
+
+    struct zoom_factor {
+        double min_factor;
+        double max_factor;
+    };
+
+    template<typename Image>
+    class ZoomOperation: public Operation<Image> {
+    private:
+        zoom_factor factor;
+//        bool center; //True - use fixed center. False - use random center
+
+    public:
+        ZoomOperation() = delete;
+
+        explicit ZoomOperation(zoom_factor factor,  double prob = UPPER_BOUND_PROB,
+                               unsigned seed = NULL_SEED): Operation<Image>{prob, seed}, factor{factor} {};
+
+        Image * perform(Image* image) override;
+
+    };
+
 
     template<typename Image>
     class InvertOperation: public Operation<Image> {
@@ -228,6 +287,54 @@ namespace augmentorLib {
 
     };
 
+    template<typename Image>
+    class FlipOperation: public Operation<Image> {
+    private:
+        const std::string& type;
+    public:
+        explicit FlipOperation(const std::string& type,
+                               double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED): Operation<Image>{prob, seed},
+                                                                                           type(type) {}//super.
+
+        Image * perform(Image* image) override;
+
+    };
+
+    template<typename Image>
+    Image *FlipOperation<Image>::perform(Image *image) {
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
+
+        if(type=="Horizontal")
+        {
+            for(size_t y = 0; y < image->getHeight(); ++y) {
+                for(size_t x = 0; x < image->getWidth()/2; ++x) {
+                    std::vector<uint8_t> left_pixels = image->getPixel(x, y);
+                    std::vector<uint8_t> right_pixels = image->getPixel(image->getWidth() - x - 1, y);
+
+                    image->setPixel(x, y, right_pixels);
+                    image->setPixel(image->getWidth()-x-1, y, left_pixels);
+                }
+            }
+        } else if(type=="Vertical"){
+            for(size_t y = 0; y < image->getHeight()/2; ++y) {
+                for(size_t x = 0; x < image->getWidth(); ++x) {
+                    std::vector<uint8_t> top_pixels = image->getPixel(x, y);
+                    std::vector<uint8_t> bottom_pixels = image->getPixel(x, image->getHeight() - y - 1);
+
+                    image->setPixel(x, y, bottom_pixels);
+                    image->setPixel(x, image->getHeight() - y - 1, top_pixels);
+                }
+            }
+        }
+        else
+        {
+            throw std::out_of_range("Unknown Flip type - Choose wither 'Horizontal' or 'Vertical'");
+        }
+        return image;
+    }
+
 
     // Below is the implementation
     template<typename Image>
@@ -246,7 +353,7 @@ namespace augmentorLib {
         if (!Operation<Image>::operate_this_time()) {
             return nullptr;
         }
-        std::cout << "(Image*) Stdout Operation is called:" << std::endl << str << std::endl;
+        //std::cout << "(Image*) Stdout Operation is called:" << std::endl << str << std::endl;
         return image;
     }
 
@@ -264,6 +371,125 @@ namespace augmentorLib {
         return image;
     }
 
+    template<typename Image>
+    Image *CropOperation<Image>::perform(Image *image) {;
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
+
+        int w = image->getWidth();
+        int h = image->getHeight();
+
+
+        Image temp(size.width, size.height);
+        if (center){
+            auto x = w/2;
+            auto y = h/2;
+
+
+            auto left_offset = x - size.width/2;
+            auto down_offset = y - size.height/2;
+
+//            if (left_offset < 0 || left_offset >= w) {
+//                throw std::out_of_range("xOffset is out of range");
+//            }
+//            if (down_offset < 0 || down_offset >= h){
+//                throw std::out_of_range("yOffset is out of range");
+//            }
+//            if (size.width < 0 || (size.width + left_offset) >= w) {
+//                throw std::out_of_range("widthCrop is out of range");
+//            }
+//            if (size.height < 0 || (size.height + down_offset) >= h) {
+//                throw std::out_of_range("heightCrop is out of range");
+//            }
+//            std::cout<<temp->getWidth()<<" "<<temp->getHeight()<<std::endl;
+
+            for(unsigned long i=left_offset, i1=0; i<left_offset+size.width; i++, i1++){
+                for(unsigned long  j=down_offset, j1=0; j<down_offset+size.height; j++, j1++){
+                    temp.setPixel(i1, j1, image->getPixel(i,j));
+                }
+            }
+
+            //return image;
+            }
+        else{
+//            TODO: For random centers
+//            auto left_shift = Operation<Image>::uniform_random_number(0, w - size.width);
+//            auto down_shift = Operation<Image>::uniform_random_number(0, h - size.height);
+        }
+
+
+//        image->crop(left_shift, down_shift, center);
+        *image = temp;
+        return image;
+    }
+
+    template<typename Image>
+    Image *ZoomOperation<Image>::perform(Image *image) {
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
+
+        double zoom_level = Operation<Image>::uniform_random_number(factor.min_factor, factor.max_factor);
+        zoom_level = static_cast<float>(static_cast<int>(zoom_level * 10.)) / 10.;
+
+        int w = image->getWidth();
+        int h = image->getHeight();
+
+        //TODO: int double issue
+        int w_zoomed = w*zoom_level;
+        int h_zoomed = h*zoom_level;
+
+        image->resize(h_zoomed, w_zoomed);
+
+        auto operation = CropOperation<Image>(
+                image_size{static_cast<size_t>(h), static_cast<size_t>(w)}, true, 1
+        );
+
+        image = operation.perform(image);
+
+        return image;
+    }
+
+    template<typename Image>
+    Image *RotateOperation<Image>::perform(Image *image) {
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
+
+        double rotate_degree = Operation<Image>::uniform_random_number(range.min_rotate, range.max_rotate);
+
+        int w = image->getWidth();
+        int h = image->getHeight();
+        Image temp(w, h);
+
+        int hwidth = w / 2;
+        int hheight = h / 2;
+        double angle = rotate_degree * PI / 180.0; //TODO: Add PI Value
+
+        for (int x = 0; x < w;x++) {
+
+            for (int y = 0; y < h;y++) {
+
+
+                int xt = x - hwidth;
+                int yt = y - hheight;
+
+
+                int xs = (int)round((cos(angle) * xt - sin(angle) * yt) + hwidth);
+                int ys = (int)round((sin(angle) * xt + cos(angle) * yt) + hheight);
+
+
+                if (xs >= 0 && xs < w && ys >= 0 && ys < h){
+                    temp.setPixel(x, y, image->getPixel(xs, ys));
+                }
+
+            }
+        }
+
+        *image = temp;
+        return image;
+    }
 
     template<typename Image>
     Image *InvertOperation<Image>::perform(Image *image) {
