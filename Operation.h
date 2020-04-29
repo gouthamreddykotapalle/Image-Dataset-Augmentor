@@ -22,9 +22,16 @@ namespace augmentorLib {
     const double UPPER_BOUND_PROB = 1.0;
     const unsigned NULL_SEED = 0;
 
+    /// A class to generate random numbers
+    /// It has different implementations based on the datatype. It uses `uniform_real_distribution`
+    /// to generate random numbers of floating numbers, and `uniform_int_distribution` to generate integers.
+    ///
     template <typename DataType, bool IsReal = std::is_floating_point<DataType>::value>
     class UniformDistributionGenerator;
 
+    ///
+    /// A class to generate floating numbers
+    ///
     template <typename DataType>
     class UniformDistributionGenerator<DataType, true> {
     private:
@@ -43,6 +50,10 @@ namespace augmentorLib {
 
         ~UniformDistributionGenerator() = default;
 
+        ///
+        /// if seed = 0, the program will automatically generate a seed based on current time.
+        /// The range of random numbers is from 0 to 1.
+        ///
         explicit UniformDistributionGenerator(unsigned seed):
                 generator{init_seed(seed)},
                 distribution{LOWER_BOUND_PROB, UPPER_BOUND_PROB} {}
@@ -56,6 +67,9 @@ namespace augmentorLib {
         }
     };
 
+    /// A class to generate int numbers
+    /// Int numbers include from int8 to unsigned long long.
+    ///
     template <typename DataType>
     class UniformDistributionGenerator<DataType, false> {
     private:
@@ -74,10 +88,17 @@ namespace augmentorLib {
 
         ~UniformDistributionGenerator() = default;
 
+        ///
+        /// if seed = 0, the program will automatically generate a seed based on current time.
+        /// The range of random numbers from Datatype_min to Datatype_max
+        ///
         explicit UniformDistributionGenerator(unsigned seed):
                 generator{init_seed(seed)},
                 distribution{std::numeric_limits<DataType>::min(), std::numeric_limits<DataType>::max()} {}
 
+        ///
+        /// if seed = 0, the program will automatically generate a seed based on current time.
+        ///
         explicit UniformDistributionGenerator(unsigned seed, DataType lower, DataType upper):
                 generator{init_seed(seed)},
                 distribution{lower, upper} {}
