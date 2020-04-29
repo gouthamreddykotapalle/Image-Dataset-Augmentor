@@ -190,6 +190,7 @@ namespace marengo
 
         std::vector<uint8_t> Image::getPixel( size_t x, size_t y ) const
         {
+
             if (y > m_bitmapData.size()){
                 throw std::out_of_range( "Y value too large" );
             }
@@ -197,6 +198,7 @@ namespace marengo
                 throw std::out_of_range( "X value too large" );
             }
             std::vector<uint8_t> vec;
+            vec.reserve(m_pixelSize);
             for (size_t n = 0; n < m_pixelSize; ++n){
                 vec.push_back( m_bitmapData[ y ][ x * m_pixelSize + n ] );
             }

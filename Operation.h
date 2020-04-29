@@ -4,6 +4,9 @@
 
 #ifndef LIB_OPERATION_H
 #define LIB_OPERATION_H
+#define PI 3.14159
+#define HORIZONTAL "Horizontal"
+#define VERTICAL "Vertical"
 
 #include <random>
 #include <chrono>
@@ -22,9 +25,16 @@ namespace augmentorLib {
     const double UPPER_BOUND_PROB = 1.0;
     const unsigned NULL_SEED = 0;
 
+    /// A class to generate random numbers
+    /// It has different implementations based on the datatype. It uses `uniform_real_distribution`
+    /// to generate random numbers of floating numbers, and `uniform_int_distribution` to generate integers.
+    ///
     template <typename DataType, bool IsReal = std::is_floating_point<DataType>::value>
     class UniformDistributionGenerator;
 
+    ///
+    /// A class to generate floating numbers
+    ///
     template <typename DataType>
     class UniformDistributionGenerator<DataType, true> {
     private:
@@ -43,6 +53,10 @@ namespace augmentorLib {
 
         ~UniformDistributionGenerator() = default;
 
+        ///
+        /// if seed = 0, the program will automatically generate a seed based on current time.
+        /// The range of random numbers is from 0 to 1.
+        ///
         explicit UniformDistributionGenerator(unsigned seed):
                 generator{init_seed(seed)},
                 distribution{LOWER_BOUND_PROB, UPPER_BOUND_PROB} {}
@@ -56,6 +70,9 @@ namespace augmentorLib {
         }
     };
 
+    /// A class to generate int numbers
+    /// Int numbers include from int8 to unsigned long long.
+    ///
     template <typename DataType>
     class UniformDistributionGenerator<DataType, false> {
     private:
@@ -74,10 +91,17 @@ namespace augmentorLib {
 
         ~UniformDistributionGenerator() = default;
 
+        ///
+        /// if seed = 0, the program will automatically generate a seed based on current time.
+        /// The range of random numbers from Datatype_min to Datatype_max
+        ///
         explicit UniformDistributionGenerator(unsigned seed):
                 generator{init_seed(seed)},
                 distribution{std::numeric_limits<DataType>::min(), std::numeric_limits<DataType>::max()} {}
 
+        ///
+        /// if seed = 0, the program will automatically generate a seed based on current time.
+        ///
         explicit UniformDistributionGenerator(unsigned seed, DataType lower, DataType upper):
                 generator{init_seed(seed)},
                 distribution{lower, upper} {}
@@ -265,6 +289,54 @@ namespace augmentorLib {
 
     };
 
+    template<typename Image>
+    class FlipOperation: public Operation<Image> {
+    private:
+        const std::string& type;
+    public:
+        explicit FlipOperation(const std::string& type,
+                               double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED): Operation<Image>{prob, seed},
+                                                                                           type(type) {}//super.
+
+        Image * perform(Image* image) override;
+
+    };
+
+    template<typename Image>
+    Image *FlipOperation<Image>::perform(Image *image) {
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
+
+        if(type=="Horizontal")
+        {
+            for(size_t y = 0; y < image->getHeight(); ++y) {
+                for(size_t x = 0; x < image->getWidth()/2; ++x) {
+                    std::vector<uint8_t> left_pixels = image->getPixel(x, y);
+                    std::vector<uint8_t> right_pixels = image->getPixel(image->getWidth() - x - 1, y);
+
+                    image->setPixel(x, y, right_pixels);
+                    image->setPixel(image->getWidth()-x-1, y, left_pixels);
+                }
+            }
+        } else if(type=="Vertical"){
+            for(size_t y = 0; y < image->getHeight()/2; ++y) {
+                for(size_t x = 0; x < image->getWidth(); ++x) {
+                    std::vector<uint8_t> top_pixels = image->getPixel(x, y);
+                    std::vector<uint8_t> bottom_pixels = image->getPixel(x, image->getHeight() - y - 1);
+
+                    image->setPixel(x, y, bottom_pixels);
+                    image->setPixel(x, image->getHeight() - y - 1, top_pixels);
+                }
+            }
+        }
+        else
+        {
+            throw std::out_of_range("Unknown Flip type - Choose wither 'Horizontal' or 'Vertical'");
+        }
+        return image;
+    }
+
 
     // Below is the implementation
     template<typename Image>
@@ -283,7 +355,7 @@ namespace augmentorLib {
         if (!Operation<Image>::operate_this_time()) {
             return nullptr;
         }
-        std::cout << "(Image*) Stdout Operation is called:" << std::endl << str << std::endl;
+        //std::cout << "(Image*) Stdout Operation is called:" << std::endl << str << std::endl;
         return image;
     }
 
@@ -355,7 +427,7 @@ namespace augmentorLib {
     }
 
     template<typename Image>
-    Image *ZoomOperation<Image>::perform(Image *image) {std::cout<<"ssds";
+    Image *ZoomOperation<Image>::perform(Image *image) {
         if (!Operation<Image>::operate_this_time()) {
             return image;
         }
@@ -366,7 +438,7 @@ namespace augmentorLib {
         int w = image->getWidth();
         int h = image->getHeight();
 
-        //TODO: int double issue
+        //TODO: int double issue - very sloow
         int w_zoomed = w*zoom_level;
         int h_zoomed = h*zoom_level;
 
@@ -382,10 +454,11 @@ namespace augmentorLib {
     }
 
     template<typename Image>
-    Image *RotateOperation<Image>::perform(Image *image) {std::cout<<"ssds";
+    Image *RotateOperation<Image>::perform(Image *image) {
         if (!Operation<Image>::operate_this_time()) {
             return image;
         }
+
 
         double rotate_degree = Operation<Image>::uniform_random_number(range.min_rotate, range.max_rotate);
 
@@ -395,7 +468,7 @@ namespace augmentorLib {
 
         int hwidth = w / 2;
         int hheight = h / 2;
-        double angle = rotate_degree * 3.14156 / 180.0; //TODO: Add PI Value
+        double angle = rotate_degree * PI / 180.0;
 
         for (int x = 0; x < w;x++) {
 
@@ -432,7 +505,7 @@ namespace augmentorLib {
                 std::vector<uint8_t> pixels = image->getPixel(x, y);
 
                 for(uint8_t &p: pixels){
-                    p = ~p;
+                    p = 255-p;
                 }
                 image->setPixel(x,y,pixels);
             }
