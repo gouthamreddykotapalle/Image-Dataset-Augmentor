@@ -114,14 +114,14 @@ namespace augmentorLib {
         for(const std::string& item:output_array) {
             Image img = Image(item);//creating a temp img object
             auto image = &img;
-//            clocking::time_point start = clocking::now();
+            clocking::time_point start = clocking::now();
             for (auto &operation : operations) {
                 image = operation->perform(image);
             }
-//            clocking::time_point end = clocking::now();
-//            clocking::duration dur = end - start;
-//            int timetaken = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-//            std::cout << "Time taken in mseconds is = " << timetaken << std::endl;
+            clocking::time_point end = clocking::now();
+            clocking::duration dur = end - start;
+            int timetaken = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+            std::cout << "Time taken in mseconds is = " << timetaken << std::endl;
             //std::cout<<this->out_path + "output_" + std::to_string(j) + ".jpg"<<"\n";
             this->save(this->out_path +  "output_" + std::to_string(j) + ".jpg", image);
             j++;
