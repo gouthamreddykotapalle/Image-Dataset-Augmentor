@@ -2,8 +2,8 @@
 // Created by Augustin Pan on 4/24/20.
 //
 
-#ifndef LIB_GAUSSIAN_FILTER_H
-#define LIB_GAUSSIAN_FILTER_H
+#ifndef LIB_FILTERS_H
+#define LIB_FILTERS_H
 
 #include <vector>
 #include <cmath>
@@ -83,8 +83,43 @@ namespace augmentorLib {
             return vector.size();
         }
     };
+
+    struct box_blur_filter_1D {
+        const size_t length;
+
+        box_blur_filter_1D() = delete;
+
+        explicit box_blur_filter_1D(size_t length): length{length} {
+            assert(length % 2);
+        }
+
+        box_blur_filter_1D(const box_blur_filter_1D& other): length{other.length} {}
+
+
+        static std::vector<box_blur_filter_1D> pseudo_gaussian_filter(double sigma, unsigned passes) {
+            //http://blog.ivank.net/fastest-gaussian-blur.html
+            //https://www.mia.uni-saarland.de/Publications/gwosdek-ssvm11.pdf
+            std::vector<box_blur_filter_1D> filters;
+            auto sigma2 = sigma * sigma;
+            auto wIdeal = std::sqrt((12 * sigma2 / passes)+1);
+            size_t wl = std::floor(wIdeal);
+            if(wl % 2 == 0) {
+                wl--;
+            }
+            auto wu = wl+2;
+            double mIdeal = (12* sigma2 - (double) passes * wl * wl - 4 * (double) passes * wl - 3 * passes)
+                    / (-4 * (double) wl - 4);
+            auto m = std::round(mIdeal);
+
+            for (size_t i = 0; i < passes; ++i) {
+                filters.emplace_back(i < m? wl : wu);
+            }
+            return filters;
+        }
+
+    };
 }
 
 
 
-#endif //LIB_GAUSSIAN_FILTER_H
+#endif //LIB_FILTERS_H
