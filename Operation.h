@@ -5,6 +5,8 @@
 #ifndef LIB_OPERATION_H
 #define LIB_OPERATION_H
 #define PI 3.14159
+#define HORIZONTAL "Horizontal"
+#define VERTICAL "Vertical"
 
 #include <random>
 #include <chrono>
@@ -415,7 +417,7 @@ namespace augmentorLib {
         int w = image->getWidth();
         int h = image->getHeight();
 
-        //TODO: int double issue
+        //TODO: int double issue - very sloow
         int w_zoomed = w*zoom_level;
         int h_zoomed = h*zoom_level;
 
@@ -436,6 +438,7 @@ namespace augmentorLib {
             return image;
         }
 
+
         double rotate_degree = Operation<Image>::uniform_random_number(range.min_rotate, range.max_rotate);
 
         int w = image->getWidth();
@@ -444,7 +447,7 @@ namespace augmentorLib {
 
         int hwidth = w / 2;
         int hheight = h / 2;
-        double angle = rotate_degree * PI / 180.0; //TODO: Add PI Value
+        double angle = rotate_degree * PI / 180.0;
 
         for (int x = 0; x < w;x++) {
 
@@ -481,7 +484,7 @@ namespace augmentorLib {
                 std::vector<uint8_t> pixels = image->getPixel(x, y);
 
                 for(uint8_t &p: pixels){
-                    p = ~p;
+                    p = 255-p;
                 }
                 image->setPixel(x,y,pixels);
             }

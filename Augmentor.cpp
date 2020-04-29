@@ -105,19 +105,24 @@ namespace augmentorLib {
             this->output_array.push_back(image_paths[j]);
         }
 
-        std::cout<<"output size= "<<output_array.size()<<std::endl;
-        for (unsigned long i = 0; i < output_array.size(); i++) {
-            std::cout<<"output[" << i << "]=" << output_array[i] << std::endl;
-        }
+        //std::cout<<"output size= "<<output_array.size()<<std::endl;
+//        for (unsigned long i = 0; i < output_array.size(); i++) {
+//            //std::cout<<"output[" << i << "]=" << output_array[i] << std::endl;
+//        }
 
         int j=0;
         for(const std::string& item:output_array) {
             Image img = Image(item);//creating a temp img object
             auto image = &img;
+//            clocking::time_point start = clocking::now();
             for (auto &operation : operations) {
                 image = operation->perform(image);
             }
-            std::cout<<this->out_path + "output_" + std::to_string(j) + ".jpg"<<"\n";
+//            clocking::time_point end = clocking::now();
+//            clocking::duration dur = end - start;
+//            int timetaken = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+//            std::cout << "Time taken in mseconds is = " << timetaken << std::endl;
+            //std::cout<<this->out_path + "output_" + std::to_string(j) + ".jpg"<<"\n";
             this->save(this->out_path +  "output_" + std::to_string(j) + ".jpg", image);
             j++;
         }

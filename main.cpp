@@ -6,6 +6,7 @@
 
 using namespace std;
 using namespace augmentorLib;
+typedef chrono::high_resolution_clock  clocking;
 
 int main( int argc, char* argv[] )
 {
@@ -24,15 +25,20 @@ int main( int argc, char* argv[] )
     }
     try {
         Augmentor augmentor(argv[1],argv[2]);
+        clocking::time_point start = clocking::now();
         augmentor
-        .random_erase(image_size{100, 100}, image_size{300, 100}, 0.5)
-        .flip("Horizontal", .25)
-        .rotate(0, 360, 0.40)
-        .crop(300, 300, true, 0.10)
-        .invert(0.30)
-        .zoom(1.2, 1.4, 1)
-        .blur<11>(10,0.5)
-        .sample(10);
+        .rotate(45,90,1)
+        .rotate(2,25,1)
+        .flip(HORIZONTAL, 1)
+        .flip(VERTICAL, 1)
+        .crop(300, 300, true)
+        .resize(120,120,1)
+        .invert(1)
+        .sample(100);
+        clocking::time_point end = clocking::now();
+        clocking::duration dur = end - start;
+        int timetaken = chrono::duration_cast<chrono::seconds>(dur).count();
+        cout << "Time taken in seconds is = " << timetaken << endl;
         return 0;
     }
     catch( const std::exception& e ) {

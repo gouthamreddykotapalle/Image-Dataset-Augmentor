@@ -13,7 +13,7 @@ link_directories(/usr/local/lib) #this is important
 
 set(CMAKE_CXX_STANDARD 17)
 
-SET(GCC_COVERAGE_COMPILE_FLAGS "-O3 -std=c++17 -Wall -Wextra -Wpedantic -Werror") #standarg flags, just google them
+SET(GCC_COVERAGE_COMPILE_FLAGS "-O2 -std=c++17 -Wall -Wextra -Wpedantic -Werror") #standarg flags, just google them
 #the linker flag can either be -l library or -llibrary
 SET(GCC_COVERAGE_LINK_FLAGS    "-l jpeg") #original libjpeg linker flags -> points to /usr/local/lib -> depends on the library present in that path
 

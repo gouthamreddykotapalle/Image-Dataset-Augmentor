@@ -1,10 +1,10 @@
 .PHONY: debug, clean
 
-test: main.cpp Augmentor.cpp jpeg.cpp
-	g++ -O3 -std=c++17 -Wall -Wextra -Wpedantic -Werror -o test *.cpp -ljpeg
+test: main.cpp Augmentor.cpp jpeg.cpp Operation.cpp
+	g++ -O -std=c++17 -Wall -Wextra -Wpedantic -Werror -o test *.cpp -ljpeg
 
-debug: main.cpp Augmentor.cpp jpeg.cpp
-	g++ -g -O0 -std=c++17 -Wall -Wextra -Wpedantic -Werror -o test *.cpp -ljpeg
+debug: main.cpp Augmentor.cpp jpeg.cpp Operation.cpp
+	g++ -g -O -std=c++17 -Wall -Wextra -Wpedantic -Werror -o test *.cpp -ljpeg
 
 clean:
 	rm -f test
