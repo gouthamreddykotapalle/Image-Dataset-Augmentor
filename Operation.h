@@ -112,6 +112,9 @@ namespace augmentorLib {
     };
 
     //TODO: use concept to constrain the value type to images
+    /// An operation class that is used is used as a Base class to create other operations
+    ///
+    /// \tparam Image Takes an Image as a template parameter
     template<typename Image>
     class Operation {
     private:
@@ -120,6 +123,8 @@ namespace augmentorLib {
         UniformDistributionGenerator<_precision_type> generator;
 
     protected:
+        /// Used to decide whether an operation is performed or not
+        /// \return A boolean value indicating whether the operation must be performed or not based on probability
         inline bool operate_this_time() {
             return generator() <= probability;
         }
@@ -134,16 +139,26 @@ namespace augmentorLib {
 
     public:
 
+        /// Default constructor
         Operation(): probability{UPPER_BOUND_PROB}, generator{NULL_SEED} {};
 
+        /// Destructor for the Operation class
         virtual ~Operation() = default;
 
+        /// Parameterized constructor
+        ///
+        /// \param prob Proabability of performing an operation
+        /// \param seed The random seed for the randomness of the operation
         explicit Operation(double prob, unsigned seed = NULL_SEED): probability{prob}, generator{seed} {}
 
         template <typename Container>
         Container&& perform(Container&&);
 
         // use pointer here, because we can use nullptr to indicate the Operation did not occur.
+        /// Perform function that is called to invoke a particular operation
+        ///
+        /// \param image Image to perform an operaion on
+        /// \return A pointer to an image object
         virtual Image* perform(Image* image) = 0;
     };
 
@@ -412,16 +427,13 @@ namespace augmentorLib {
                 }
             }
 
-            //return image;
-            }
+        }
         else{
 //            TODO: For random centers
 //            auto left_shift = Operation<Image>::uniform_random_number(0, w - size.width);
 //            auto down_shift = Operation<Image>::uniform_random_number(0, h - size.height);
         }
 
-
-//        image->crop(left_shift, down_shift, center);
         *image = temp;
         return image;
     }
