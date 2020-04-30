@@ -14,6 +14,10 @@ namespace augmentorLib {
     template<unsigned N=0, bool Static = (N > 0) >
     class gaussian_blur_filter_1D;
 
+    /// Gaussian blur filter class
+    ///
+    /// True Version
+    /// \tparam N Denotes the Kernel value for the blur operation
     template<unsigned N>
     class gaussian_blur_filter_1D<N, true> {
 
@@ -49,6 +53,10 @@ namespace augmentorLib {
         }
     };
 
+    /// Gaussian blur filter class
+    ///
+    /// False Version
+    /// \tparam N Denotes the Kernel value for the blur operation
     template<unsigned N>
     class gaussian_blur_filter_1D<N, false> {
 

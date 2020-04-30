@@ -9,9 +9,7 @@
 
 #include<iostream>
 
-namespace marengo
-{
-    namespace jpeg
+namespace jpegimageSTL::jpeg
     {
         Image::Image(const size_t x, const size_t y, const size_t pixelSize, const int colourSpace)
         {
@@ -139,6 +137,7 @@ namespace marengo
             m_colourSpace   = rhs.m_colourSpace;
         }
 
+        /// Destructor
         Image::~Image()
         {
         }
@@ -253,6 +252,5 @@ namespace marengo
             m_width = m_bitmapData[0].size() / m_pixelSize;
         }
 
-    } // namespace jpeg
-} // namespace marengo
+    } // namespace marengo
 
