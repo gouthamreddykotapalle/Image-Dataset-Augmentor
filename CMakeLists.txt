@@ -15,7 +15,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 SET(GCC_COVERAGE_COMPILE_FLAGS "-O2 -std=c++17 -Wall -Wextra -Wpedantic -Werror") #standarg flags, just google them
 #the linker flag can either be -l library or -llibrary
-SET(GCC_COVERAGE_LINK_FLAGS    "-l jpeg") #original libjpeg linker flags -> points to /usr/local/lib -> depends on the library present in that path
+SET(GCC_COVERAGE_LINK_FLAGS    "-ljpeg -lgtest") #original libjpeg linker flags -> points to /usr/local/lib -> depends on the library present in that path
 
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
 SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
@@ -27,3 +27,5 @@ add_executable(output ${SOURCE_FILES})
 
 
 
+
+add_executable(unit_test Augmentor.cpp Augmentor.h jpeg.h jpeg.cpp Operation.cpp Operation.h filters.h unit_test.cpp)

@@ -27,14 +27,14 @@ int main( int argc, char* argv[] )
         Augmentor augmentor(argv[1],argv[2]);
         clocking::time_point start = clocking::now();
         augmentor
-        .rotate(45,90,1)
-        .rotate(2,25,1)
-        .flip(HORIZONTAL, 1)
-        .flip(VERTICAL, 1)
-        .crop(300, 300, true)
-        .resize(120,120,1)
-        .rapid_blur(5)
-        .invert(1)
+//        .rotate(45,90,1)
+//        .rotate(2,25,1)
+//        .flip(HORIZONTAL, 1)
+//        .flip(VERTICAL, 1)
+//        .crop(300, 300, true)
+//        .resize(120,120,1)
+//        .rapid_blur(5)
+        .zoom(2,2,1)
         .sample(1);
         clocking::time_point end = clocking::now();
         clocking::duration dur = end - start;
