@@ -122,7 +122,7 @@ namespace augmentorLib {
         /// \return A reference to the Augmentor object
         template<int K=5>
         Augmentor& blur(double sigma, double prob=1) {
-            auto operation = std::make_unique<BlurOperation<Image, K>>(sigma, prob);
+            auto operation = std::make_unique<GaussianBlurOperation<Image, K>>(sigma, prob);
             operations.push_back(std::move(operation));
             return *this;
         }
@@ -135,6 +135,8 @@ namespace augmentorLib {
         /// \param prob probability of performing the resize operation
         /// \return A reference to the Augmentor object
         Augmentor& blur(double sigma, size_t kernel_size, double prob=1);
+
+        Augmentor& rapid_blur(const double sigma, const unsigned int passes=3, double prob=1);
 
         /// Pipeline
         /// Creates an input image array to operate on

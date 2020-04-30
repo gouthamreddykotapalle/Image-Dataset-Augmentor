@@ -129,8 +129,15 @@ namespace augmentorLib {
     }
 
     Augmentor &Augmentor::blur(double sigma, size_t kernel_size, double prob) {
-        auto operation = std::make_unique<BlurOperation<Image>>(sigma, kernel_size, prob);
+        auto operation = std::make_unique<GaussianBlurOperation<Image>>(sigma, kernel_size, prob);
         operations.push_back(std::move(operation));
+        return *this;
+    }
+
+    Augmentor& Augmentor::rapid_blur(const double sigma, const unsigned int passes, double prob) {
+        auto operation = std::make_unique<FastGaussianBlurOperation<Image>>(sigma, passes, prob);
+        operations.push_back(std::move(operation));
+
         return *this;
     }
 

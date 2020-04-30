@@ -12,7 +12,7 @@
 #include <chrono>
 #include <utility>
 #include <iostream>
-#include "gaussian_filter.h"
+#include "filters.h"
 #include <algorithm>
 #include <vector>
 #include <limits>
@@ -267,18 +267,53 @@ namespace augmentorLib {
     };
 
     template<typename Image, int Kernel = 0>
-    class BlurOperation: public Operation<Image> {
+    class GaussianBlurOperation: public Operation<Image> {
     private:
         gaussian_blur_filter_1D<Kernel> filter;
     public:
-        explicit BlurOperation(const double sigma, const size_t n,
+        explicit GaussianBlurOperation(const double sigma, const size_t n,
                 double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED): Operation<Image>{prob, seed},
                 filter(sigma, n) {}
 
-        explicit BlurOperation(const double sigma, double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
+        explicit GaussianBlurOperation(const double sigma, double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
             Operation<Image>{prob, seed}, filter(sigma) {}
 
-        Image * perform(Image* image) override;
+        Image* perform(Image* image) override;
+
+    };
+
+
+    template<typename Image>
+    class BoxBlurOperation: public Operation<Image>{
+    private:
+        box_blur_filter_1D filter;
+    public:
+        explicit BoxBlurOperation(const size_t n,
+                double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
+                Operation<Image>{prob, seed}, filter{n} {}
+
+        explicit BoxBlurOperation(const box_blur_filter_1D filter, double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
+                Operation<Image>{prob, seed}, filter{filter} {}
+
+        Image* perform(Image* image) override;
+    };
+
+    template<typename Image>
+    class FastGaussianBlurOperation: public Operation<Image> {
+    private:
+        std::vector<BoxBlurOperation<Image>> box_blur_operations;
+    public:
+
+        explicit FastGaussianBlurOperation(const double sigma, const unsigned int passes,
+                double prob = UPPER_BOUND_PROB, unsigned seed = NULL_SEED):
+                Operation<Image>{prob, seed} {
+            auto filters = box_blur_filter_1D::pseudo_gaussian_filter(sigma, passes);
+            for (auto filter : filters) {
+                box_blur_operations.push_back(BoxBlurOperation<Image>(filter));
+            }
+        }
+
+        Image* perform(Image* image) override;
 
     };
 
@@ -323,7 +358,7 @@ namespace augmentorLib {
             return image;
         }
 
-        if(type=="Horizontal")
+        if(type==HORIZONTAL)
         {
             for(size_t y = 0; y < image->getHeight(); ++y) {
                 for(size_t x = 0; x < image->getWidth()/2; ++x) {
@@ -334,7 +369,7 @@ namespace augmentorLib {
                     image->setPixel(image->getWidth()-x-1, y, left_pixels);
                 }
             }
-        } else if(type=="Vertical"){
+        } else if(type==VERTICAL){
             for(size_t y = 0; y < image->getHeight()/2; ++y) {
                 for(size_t x = 0; x < image->getWidth(); ++x) {
                     std::vector<uint8_t> top_pixels = image->getPixel(x, y);
@@ -533,7 +568,7 @@ namespace augmentorLib {
     }
 
     template<typename Image, int Kernel>
-    Image *BlurOperation<Image, Kernel>::perform(Image *image) {
+    Image *GaussianBlurOperation<Image, Kernel>::perform(Image *image) {
         if (!Operation<Image>::operate_this_time()) {
             return image;
         }
@@ -580,6 +615,103 @@ namespace augmentorLib {
             }
         }
 
+        return image;
+    }
+
+    struct accumulator {
+        typedef uint64_t _datatype;
+        std::vector<_datatype> values;
+
+        explicit accumulator(size_t n): values(n) {}
+
+        template <typename Value>
+        inline void add(std::vector<Value>&& val) {
+            for (size_t i = 0; i < values.size(); ++i) {
+                values[i] += val[i];
+            }
+
+        }
+
+        template <typename Value>
+        inline void shift(std::vector<Value>&& del, std::vector<Value>&& add) {
+            for (size_t i = 0; i < values.size(); ++i) {
+                values[i] += add[i];
+                values[i] -= del[i];
+            }
+
+        }
+
+        template <typename ReturnType=u_int8_t >
+        inline std::vector<ReturnType> div(_datatype denominator) {
+            std::vector<ReturnType> res(values.size());
+            for (size_t i = 0; i < values.size(); ++i) {
+                res[i] = values[i] / denominator;
+            }
+            return res;
+        }
+    };
+
+    template<typename Image>
+    Image *BoxBlurOperation<Image>::perform(Image *image) {
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
+
+        auto transient = Image(image->getWidth(), image->getHeight(), image->getPixelSize(), image->getColorSpace());
+        auto pixel_size = image->getPixelSize();
+
+        for (size_t i = 0; i< image->getWidth(); ++i) {
+            auto acc = accumulator(pixel_size);
+
+            long y0 = -(filter.length / 2);
+            for (size_t k = 0; k < filter.length; ++k) {
+                size_t y = std::min((size_t) std::max(y0++, 0l), image->getHeight() - 1);
+                acc.add(image->getPixel(i, y));
+                transient.setPixel(i, 0, acc.div(filter.length));
+            }
+
+            long y_del = -(filter.length / 2);
+            size_t y_add = (filter.length / 2) + 1;
+            for (size_t j = 1; j < image->getHeight(); ++j) {
+                size_t prev = std::max(y_del++, 0l);
+                size_t next = std::min(y_add++, image->getHeight() - 1);
+                acc.shift(image->getPixel(i, prev), image->getPixel(i, next));
+                transient.setPixel(i, j, acc.div(filter.length));
+            }
+        }
+
+        for (size_t j = 0; j< image->getHeight(); ++j) {
+            auto acc = accumulator(pixel_size);
+
+            long x0 = -(filter.length / 2);
+            for (size_t k = 0; k < filter.length; ++k) {
+                size_t x = std::min((size_t) std::max(x0++, 0l), image->getWidth() - 1);
+                acc.add(transient.getPixel(x, j));
+                image->setPixel(0, j, acc.div(filter.length));
+            }
+
+            long x_del = -(filter.length / 2);
+            size_t x_add = (filter.length / 2) + 1;
+            for (size_t i = 1; i < image->getWidth(); ++i) {
+                size_t prev = std::max(x_del++, 0l);
+                size_t next = std::min(x_add++, image->getWidth() - 1);
+                acc.shift(transient.getPixel(prev, j), transient.getPixel(next, j));
+                image->setPixel(i, j, acc.div(filter.length));
+
+            }
+        }
+
+        return image;
+    }
+
+    template<typename Image>
+    Image* FastGaussianBlurOperation<Image>::perform(Image *image) {
+        if (!Operation<Image>::operate_this_time()) {
+            return image;
+        }
+        for (auto operation : box_blur_operations) {
+            image = operation.perform(image);
+        }
         return image;
     }
 
