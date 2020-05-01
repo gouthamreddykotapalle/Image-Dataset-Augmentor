@@ -19,12 +19,11 @@ Before starting, please install libjpeg using (Comes in-built if you are using U
 
 
 Steps to use ImageAugmentor library:
-```
-1. git clone https://github.com/Gouthamkreddy1234/Image-Augmentation-Library.git
-2. brew install libjpeg
+1. ```git clone https://github.com/Gouthamkreddy1234/Image-Augmentation-Library.git```
+2. ```brew install libjpeg```
 3. Copy the code form the cloned directory into your project directory
-4. Add the Augmentor.cpp jpeg.cpp Operation.cpp to your makefile (follow below example assuming main.cpp is your main project file)
-
+4. Add the ```Augmentor.cpp jpeg.cpp Operation.cpp``` to your makefile (follow below example assuming main.cpp is your main project file)
+```
     prod: main.cpp Augmentor.cpp jpeg.cpp Operation.cpp
       g++ -O -std=c++17 -Wall -Wextra -Wpedantic -Werror -o prod main.cpp Augmentor.cpp jpeg.cpp Operation.cpp -ljpeg
 
