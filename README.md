@@ -18,7 +18,42 @@ Before starting, please install libjpeg using (Comes in-built if you are using U
 brew install libjpeg or brew install libjpeg-dev
 
 
+Steps to use ImageAugmentor library:
 
-Yet to make the design document, API document, Final Report and presentation+tutorial
+TUTORIAL:
 
-Future scope, multi-threading support as well.
+git clone https://github.com/Gouthamkreddy1234/Image-Augmentation-Library.git
+
+brew install libjpeg
+
+Copy the code form the cloned directory into your project directory
+
+Add the Augmentor.cpp jpeg.cpp Operation.cpp to your makefile (follow below example assuming main.cpp is your main project file)
+
+prod: main.cpp Augmentor.cpp jpeg.cpp Operation.cpp
+  g++ -O -std=c++17 -Wall -Wextra -Wpedantic -Werror -o prod main.cpp Augmentor.cpp jpeg.cpp Operation.cpp -ljpeg
+
+test: unit_test.cpp Augmentor.cpp jpeg.cpp Operation.cpp
+  g++ -O -std=c++17 -Wall -Wextra -Wpedantic -Werror -o test unit_test.cpp Augmentor.cpp jpeg.cpp Operation.cpp -ljpeg -lgtest
+
+debug: main.cpp Augmentor.cpp jpeg.cpp Operation.cpp
+  g++ -g -O -std=c++17 -Wall -Wextra -Wpedantic -Werror -o debug *.cpp -ljpeg
+
+Command - make prod
+IMPORTANT: Use the prod target when you build the code, test target builds only the unit test code
+
+#include "Augmentor.h" in your main.cpp
+
+Usage example:
+Augmentor augmentor(argv[1],argv[2]); //input and output directory path
+augmentor
+.rotate(45,90,0.5) //45-90 degree of rotation randomness
+.flip(HORIZONTAL, 0.5) //0.5 probability of flip operation being applied to an image
+.crop(300, 300, true) // (x, y) size of cropped image
+.resize(120,120,1) // (x, y) size of resized image
+.invert(1) // invert with probability 1
+.sample(1000); // Output 1000 images
+
+This will output 1000 augmented images to the provided destination directory (argv[2])
+Refer for documentation - http://image-augmentor.s3-website-us-east-1.amazonaws.com
+
