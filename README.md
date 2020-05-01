@@ -51,8 +51,9 @@ Before starting, please install libjpeg using (Comes in-built if you are using U
 ```
 8. This will output 1000 augmented images to the provided destination directory (argv[2])
 
-9. Refer for documentation - http://image-augmentor.s3-website-us-east-1.amazonaws.com
-
+9. Refer for documentation - 
+    LINK - http://image-augmentor.s3-website-us-east-1.amazonaws.com
+    PDF - https://image-augmentor-pdf.s3.amazonaws.com/Documentation.pdf
 
 
 # Augmentor Design Document
