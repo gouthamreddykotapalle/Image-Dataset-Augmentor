@@ -18,7 +18,7 @@ Before starting, please install libjpeg using (Comes in-built if you are using U
 ```brew install libjpeg``` or brew install libjpeg-dev
 
 
-Steps to use ImageAugmentor library:
+# Steps to use the library:
 1. ```git clone https://github.com/Gouthamkreddy1234/Image-Augmentation-Library.git```
 2. ```brew install libjpeg```
 3. Copy the code form the cloned directory into your project directory
