@@ -15,11 +15,11 @@ We will be using this Wrapper instead of the standard classes that Jpeglib.h off
 
 Before starting, please install libjpeg using (Comes in-built if you are using Unix-like distributions) - 
 <br>
-brew install libjpeg or brew install libjpeg-dev
+```brew install libjpeg``` or brew install libjpeg-dev
 
 
 Steps to use ImageAugmentor library:
-
+```
 1. git clone https://github.com/Gouthamkreddy1234/Image-Augmentation-Library.git
 2. brew install libjpeg
 3. Copy the code form the cloned directory into your project directory
@@ -33,14 +33,14 @@ Steps to use ImageAugmentor library:
 
     debug: main.cpp Augmentor.cpp jpeg.cpp Operation.cpp
       g++ -g -O -std=c++17 -Wall -Wextra -Wpedantic -Werror -o debug *.cpp -ljpeg
-
-5. Command - make prod
+```
+5. Command - ```make prod```
     IMPORTANT: Use the prod target when you build the code, test target builds only the unit test code
 
-6. #include "Augmentor.h" in your main.cpp
+6. ```#include "Augmentor.h"``` in your main.cpp
 
 7. Usage example:
-
+```
     Augmentor augmentor(argv[1],argv[2]); //input and output directory path <br>
     augmentor <br>
     .rotate(45,90,0.5) // 45-90 degree of rotation randomness <br>
@@ -49,7 +49,7 @@ Steps to use ImageAugmentor library:
     .resize(120,120,1) // (x, y) size of resized image <br>
     .invert(1) // invert with probability 1 <br>
     .sample(1000); // Output 1000 images
-
+```
 8. This will output 1000 augmented images to the provided destination directory (argv[2])
 
 9. Refer for documentation - http://image-augmentor.s3-website-us-east-1.amazonaws.com
