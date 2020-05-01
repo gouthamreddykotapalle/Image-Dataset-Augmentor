@@ -40,7 +40,7 @@ Before starting, please install libjpeg using (Comes in-built if you are using U
 
 7. Usage example:
 ```
-    Augmentor augmentor(argv[1],argv[2]); //input and output directory path <br>
+    augmentorLib::Augmentor augmentor(argv[1],argv[2]); //input and output directory path <br>
     augmentor <br>
     .rotate(45,90,0.5) // 45-90 degree of rotation randomness <br>
     .flip(HORIZONTAL, 0.5) // 0.5 probability of flip operation being applied to an image <br>
