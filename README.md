@@ -41,13 +41,13 @@ Steps to use ImageAugmentor library:
 
 7. Usage example:
 
-    Augmentor augmentor(argv[1],argv[2]); //input and output directory path
-    augmentor
-    .rotate(45,90,0.5) // 45-90 degree of rotation randomness
-    .flip(HORIZONTAL, 0.5) // 0.5 probability of flip operation being applied to an image
-    .crop(300, 300, true) // (x, y) size of cropped image
-    .resize(120,120,1) // (x, y) size of resized image
-    .invert(1) // invert with probability 1
+    Augmentor augmentor(argv[1],argv[2]); //input and output directory path <br>
+    augmentor <br>
+    .rotate(45,90,0.5) // 45-90 degree of rotation randomness <br>
+    .flip(HORIZONTAL, 0.5) // 0.5 probability of flip operation being applied to an image <br>
+    .crop(300, 300, true) // (x, y) size of cropped image <br>
+    .resize(120,120,1) // (x, y) size of resized image <br>
+    .invert(1) // invert with probability 1 <br>
     .sample(1000); // Output 1000 images
 
 8. This will output 1000 augmented images to the provided destination directory (argv[2])
