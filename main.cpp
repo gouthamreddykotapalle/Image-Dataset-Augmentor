@@ -27,21 +27,18 @@ int main( int argc, char* argv[] )
         Augmentor augmentor(argv[1],argv[2]);
         clocking::time_point start = clocking::now();
         augmentor
-//        .rotate(45,90,1)
-//        .rotate(2,25,1)
-//        .flip(HORIZONTAL, 1)
-//        .flip(VERTICAL, 1)
-//        .crop(300, 300, true)
-//        .resize(120,120,1)
-//        .rapid_blur(5)
-        .zoom(2,2,1)
-        .sample(1);
+        .rotate(0, 90, 0.5)
+        .rotate(2, 30, 0.27)
+        .flip(HORIZONTAL, 0.8)
+        .flip(VERTICAL, 0.3)
+        .crop(700, 700, true, 0.4)
+        .invert(0.3)
+        .blur<11>(50, 0.2)
+        .sample(10);
         clocking::time_point end = clocking::now();
         clocking::duration dur = end - start;
         int timetaken = chrono::duration_cast<chrono::seconds>(dur).count();
         cout << "Time taken in seconds is = " << timetaken << endl;
-//        Augmentor augmentor(argv[1],argv[2]);
-//        augmentor.rapid_blur(5).sample(1);
         return 0;
     }
     catch( const std::exception& e ) {
