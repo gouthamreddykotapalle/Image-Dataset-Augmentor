@@ -1,11 +1,9 @@
 #include <iostream>
 #include <vector>
 
-#include "Augmentor.h"
+#include "Augmentor.h" // AUGMENTOR LIB
 
-using namespace std;
-using namespace augmentorLib;
-typedef chrono::high_resolution_clock  clocking;
+typedef std::chrono::high_resolution_clock clocking;
 
 int main( int argc, char* argv[] )
 {
@@ -15,7 +13,7 @@ int main( int argc, char* argv[] )
         return 1;
     }
     try {
-        Augmentor augmentor(argv[1],argv[2]);
+        augmentorLib::Augmentor augmentor(argv[1],argv[2]);
         clocking::time_point start = clocking::now();
         augmentor
         .rotate(0, 90, 0.5)
@@ -29,8 +27,8 @@ int main( int argc, char* argv[] )
         .sample(10);
         clocking::time_point end = clocking::now();
         clocking::duration dur = end - start;
-        int timetaken = chrono::duration_cast<chrono::seconds>(dur).count();
-        cout << "Time taken in seconds is = " << timetaken << endl;
+        int timetaken = std::chrono::duration_cast<std::chrono::seconds>(dur).count();
+        std::cout << "Time taken in seconds is = " << timetaken << std::endl;
         return 0;
     }
     catch( const std::exception& e ) {
