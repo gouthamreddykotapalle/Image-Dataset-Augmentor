@@ -3,7 +3,7 @@ Library Design using C++ - Final Project
 
 Using jpeglib.h (libjpeg) which is a commonly used jpeg library/package - http://libjpeg.sourceforge.net/
 
-Using the library - https://github.com/md81544/libjpeg_cpp/ (https://www.martyndavis.com/?tag=libjpeg) - Which is a wrapper around the standard libjpeg/jpeglib.h written in STL around the jpeglib.h data structures that use c-style representations.
+Using the library - https://github.com/md81544/libjpeg_cpp/ (https://www.martyndavis.com/?tag=libjpeg) - Which is a wrapper around the standard libjpeg/jpeglib.h written in STL around the jpeglib.h data structures that use c-style representations of the image class/strucure.
 
 <br>
 
